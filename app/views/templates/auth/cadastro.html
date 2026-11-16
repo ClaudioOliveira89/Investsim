@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block titulo %}Criar conta{% endblock %}
+{% block conteudo %}
+<div class="login">
+  <section class="login__apresentacao" aria-hidden="true">
+    <div>
+      <svg class="icone login__logo"><use href="#i-logo"></use></svg>
+      <h2>Sua carteira simulada<br>em dois minutos.</h2>
+      <ul>
+        <li>Crie a conta e uma carteira.</li>
+        <li>Registre quanto aplicou, em qual ativo e em que data.</li>
+        <li>O InvestSim busca o preço do dia e calcula tudo até hoje.</li>
+      </ul>
+    </div>
+  </section>
+  <section class="login__formulario">
+    <div class="cartao cartao--login">
+      <h1 class="titulo-pagina">Criar conta</h1>
+      <p class="texto-suave">Use qualquer e-mail: é um ambiente de simulação, sem dinheiro real.</p>
+      <form method="post" novalidate data-validar>
+        {{ form.hidden_tag() }}
+        {{ campo(form.nome, autocomplete='name', autofocus=True) }}
+        {{ campo(form.email, autocomplete='email', placeholder='voce@email.com') }}
+        {{ campo(form.senha, autocomplete='new-password', dica='Mínimo de 8 caracteres, com letras e números.', minlength=8) }}
+        {{ campo(form.confirmacao, autocomplete='new-password') }}
+        <button type="submit" class="botao botao--primario botao--bloco">Criar minha conta</button>
+      </form>
+      <p class="login__rodape">Já tem conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

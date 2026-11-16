@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% from "_macros.html" import selo_classe, kpi, icone_ativo %}
+{% set classe_terminal = 'BDR' if ativo.is_bdr else ativo.classe %}
+{% set classe_atual = classe_terminal %}
+{% block titulo %}{{ ativo.ticker }}{% endblock %}
+{% block trilha %}
+  <a href="{{ url_for('mercado.index', classe=classe_terminal) }}">Mercado</a>
+  <a href="{{ url_for('mercado.index', classe=classe_terminal) }}">{{ 'BDRs' if ativo.is_bdr else (ativo.classe | classe_ativo) }}</a>
+  <span>{{ ativo.ticker }}</span>
+{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div class="cabecalho-ativo">
+    {{ icone_ativo(ativo, 'ticker__logo--grande') }}
+    <div>
+      <h1 class="titulo-pagina">{{ ativo.ticker }} {{ selo_classe(ativo.classe) }}{% if ativo.is_bdr %}<span class="selo selo--bdr">BDR</span>{% endif %}
+        {% if not ativo.ativo %}<span class="selo selo--inativo">Fora do catálogo</span>{% endif %}</h1>
+      <p class="texto-suave">{{ ativo.nome }}</p>
+    </div>
+    {% if linha.ultimo %}
+    <span class="cabecalho-ativo__preco">{{ linha.ultimo | preco }}</span>
+    <span class="cabecalho-ativo__variacao {{ linha.var_dia | tendencia }}">{{ linha.var_dia | pct }} no dia</span>
+    {% endif %}
+  </div>
+  {% if ativo.ativo %}
+    {% if carteiras %}
+    <form class="grupo-botoes" method="get" data-simular>
+      <label class="sr-only" for="carteira-destino">Carteira de destino</label>
+      <select id="carteira-destino" class="campo__controle campo__controle--compacto" data-carteira-destino>
+        {% for c in carteiras %}
+        <option value="{{ url_for('carteiras.nova_operacao', carteira_id=c.id, ativo_id=ativo.id) }}">{{ c.nome }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="botao botao--primario">
+        <svg class="icone" aria-hidden="true"><use href="#i-compra"></use></svg> Simular compra</button>
+    </form>
+    {% else %}
+    <a class="botao botao--primario" href="{{ url_for('carteiras.nova') }}">Criar carteira para simular</a>
+    {% endif %}
+  {% endif %}
+</div>
+
+{% if avisos %}
+<div class="alerta alerta--aviso" role="status">
+  <svg class="icone" aria-hidden="true"><use href="#i-aviso"></use></svg>
+  <p>{{ avisos | join(' ') }}</p>
+</div>
+{% endif %}
+
+<section class="kpis" aria-label="Estatísticas">
+  {{ kpi('Variação 12 meses', (linha.var_12m | pct) if linha.ultimo else '—', None, '', linha.var_12m | tendencia) }}
+  {{ kpi('Mínima 12 meses', (minimo | preco) if minimo else '—') }}
+  {{ kpi('Máxima 12 meses', (maximo | preco) if maximo else '—') }}
+  {% if ativo.classe != 'CRIPTO' %}
+  {{ kpi('Proventos 12 meses', proventos_12m | moeda, ('Dividend yield: ' ~ (dividend_yield | pct(2, False))) if dividend_yield else 'por cota') }}
+  {% endif %}
+  {{ kpi('Último fechamento', (linha.data | data_br) if linha.ultimo else '—') }}
+</section>
+
+<section class="cartao" aria-labelledby="titulo-historico">
+  <div class="cartao__cabecalho">
+    <h2 class="titulo-secao" id="titulo-historico">Histórico de preços</h2>
+    <div class="abas" role="group" aria-label="Período">
+      {% for codigo, rotulo in [('1m', '1M'), ('6m', '6M'), ('1a', '1A'), ('2a', '2A'), ('5a', '5A')] %}
+      <button type="button" data-periodo="{{ codigo }}" aria-pressed="{{ 'true' if codigo == '1a' else 'false' }}">{{ rotulo }}</button>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="grafico">
+    <canvas id="grafico-ativo" role="img" aria-label="Histórico de preços de {{ ativo.ticker }}"
+            data-url="{{ url_for('api.historico', ativo_id=ativo.id) }}"></canvas>
+  </div>
+  <p class="texto-suave" data-grafico-status aria-live="polite"></p>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/graficos.js', v='20261115-bdr') }}" defer></script>
+{% endblock %}

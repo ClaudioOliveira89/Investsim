@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import vazio %}
+{% block titulo %}Feedbacks de teste{% endblock %}
+{% block trilha %}<a href="{{ url_for('carteiras.painel') }}">Painel</a><span>Feedbacks de teste</span>{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1 class="titulo-pagina">Feedbacks de teste</h1>
+    <p class="texto-suave">Laudos enviados pelos testadores. Compartilhe o link
+      <code>{{ url_for('feedback.enviar', _external=True) }}</code>
+      <button type="button" class="botao botao--texto botao--pequeno" data-copiar="{{ url_for('feedback.enviar', _external=True) }}">Copiar link</button>
+    </p>
+  </div>
+  <div class="grupo-botoes">
+    <a class="botao botao--secundario" href="{{ url_for('feedback.exportar_csv') }}">
+      <svg class="icone" aria-hidden="true"><use href="#i-download"></use></svg> Exportar CSV</a>
+    <a class="botao botao--primario" href="{{ url_for('feedback.relatorio') }}" target="_blank" rel="noopener">
+      <svg class="icone" aria-hidden="true"><use href="#i-impressora"></use></svg> Relatório para PDF</a>
+  </div>
+</div>
+
+<div class="cartao cartao--sem-padding">
+  {% if feedbacks %}
+  <div class="tabela-rolagem">
+    <table class="tabela">
+      <caption class="sr-only">Feedbacks recebidos</caption>
+      <thead><tr><th scope="col">Testador</th><th scope="col">Data do teste</th><th scope="col">Nota</th><th scope="col">Problemas?</th><th scope="col">Prints</th><th scope="col">Situação</th></tr></thead>
+      <tbody>
+        {% for f in feedbacks %}
+        <tr class="tabela__linha--clicavel" data-href="{{ url_for('feedback.detalhe', feedback_id=f.id) }}">
+          <td data-rotulo="Testador"><a href="{{ url_for('feedback.detalhe', feedback_id=f.id) }}"><strong>{{ f.nome_testador }}</strong></a><br><small class="texto-suave">{{ f.perfil_testador or '' }}</small></td>
+          <td data-rotulo="Data do teste">{{ f.data_teste | data_br }}</td>
+          <td data-rotulo="Nota"><span class="estrelas" aria-label="Nota {{ f.nota }} de 5">{{ '★' * f.nota }}{{ '☆' * (5 - f.nota) }}</span></td>
+          <td data-rotulo="Problemas?">{{ 'Sim' if f.nao_funcionou else 'Não relatou' }}</td>
+          <td data-rotulo="Prints">{{ f.anexos | length }}</td>
+          <td data-rotulo="Situação"><span class="selo selo--fb-{{ f.status | lower }}">{{ f.status_descricao }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    {{ vazio('Nenhum feedback recebido ainda.', 'Envie o link do formulário para cinco colegas testarem o sistema.') }}
+  {% endif %}
+</div>
+{% endblock %}

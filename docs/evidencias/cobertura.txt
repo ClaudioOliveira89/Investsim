@@ -1,0 +1,42 @@
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.14.10-final-0 _______________
+
+Name                               Stmts   Miss  Cover   Missing
+----------------------------------------------------------------
+app\__init__.py                       44      1    98%   67
+app\cli.py                            46     21    54%   25, 29-32, 40-42, 47-50, 58-67
+app\config.py                         32      2    94%   22, 24
+app\controllers\__init__.py            6      0   100%
+app\controllers\_helpers.py           28      2    93%   27, 37
+app\controllers\api.py                40      0   100%
+app\controllers\auth.py               58      2    97%   18, 42
+app\controllers\carteiras.py         155     11    93%   48, 143-152, 201
+app\controllers\erros.py              27      1    96%   29
+app\controllers\feedback.py           76      0   100%
+app\controllers\mercado.py            80      6    92%   107-112
+app\controllers\usuarios.py           53     28    47%   30-40, 45-56, 61-68
+app\extensions.py                      9      0   100%
+app\forms\__init__.py                 83      1    99%   57
+app\models\__init__.py                 5      0   100%
+app\models\carteira.py                39      0   100%
+app\models\feedback.py                34      0   100%
+app\models\mercado.py                 40      2    95%   33, 36
+app\models\usuario.py                 36      1    97%   55
+app\seed.py                           51      5    90%   101-103, 110, 123
+app\services\__init__.py               0      0   100%
+app\services\carteira_service.py      87      4    95%   64, 66, 85, 124
+app\services\excecoes.py               6      0   100%
+app\services\feedback_service.py      43      0   100%
+app\services\mercado_service.py      156      8    95%   31-34, 38, 45, 218-219
+app\services\usuario_service.py       41     23    44%   27-41, 45-54
+app\simulador\__init__.py              0      0   100%
+app\simulador\calculos.py            167      2    99%   166, 182
+app\simulador\fontes.py              150      8    95%   83-84, 96-97, 127, 155-156, 209
+app\simulador\regras.py               68      2    97%   72, 96
+app\utils\__init__.py                  0      0   100%
+app\utils\filtros.py                  49      8    84%   12, 19, 27, 33, 40, 52, 61, 70
+app\utils\tempo.py                    22      1    95%   45
+app\utils\validadores.py               5      0   100%
+----------------------------------------------------------------
+TOTAL                               1736    139    92%
+======================= 153 passed, 1 warning in 49.84s =======================

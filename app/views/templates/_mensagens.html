@@ -1,0 +1,14 @@
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+  {% if mensagens %}
+  <div class="alertas" role="status" aria-live="polite">
+    {% for categoria, mensagem in mensagens %}
+    {% set categoria = categoria if categoria in ['sucesso', 'erro', 'aviso', 'info'] else 'info' %}
+    <div class="alerta alerta--{{ categoria }}" {% if categoria == 'erro' %}role="alert"{% endif %} data-alerta>
+      <svg class="icone" aria-hidden="true"><use href="#i-{{ categoria }}"></use></svg>
+      <p>{{ mensagem }}</p>
+      <button type="button" class="alerta__fechar" aria-label="Fechar mensagem" data-fechar-alerta>&times;</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}

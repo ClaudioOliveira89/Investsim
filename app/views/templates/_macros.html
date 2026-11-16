@@ -1,0 +1,125 @@
+{# ---------------------------------------------------------------- campo de formulário #}
+{% macro campo(field, dica=None, classe='', obrigatorio=None) %}
+  {% set id_erro = field.id ~ '-erro' %}
+  {% set id_dica = field.id ~ '-dica' %}
+  {% set e_obrigatorio = obrigatorio if obrigatorio is not none else field.flags.required %}
+  {% set descricao = dica or field.description %}
+  <div class="campo {{ classe }} {% if field.errors %}campo--erro{% endif %}">
+    {% if field.type in ['BooleanField'] %}
+      <label class="caixa-selecao">
+        {{ field(**kwargs) }}
+        <span>{{ field.label.text }}</span>
+      </label>
+    {% else %}
+      <label for="{{ field.id }}" class="campo__rotulo">
+        {{ field.label.text }}{% if e_obrigatorio %} <span class="obrigatorio" aria-hidden="true">*</span>{% endif %}
+      </label>
+      {% set atributos = {
+        'class': 'campo__controle',
+        'aria-invalid': 'true' if field.errors else 'false',
+        'aria-describedby': ((id_erro ~ ' ') if field.errors else '') ~ (id_dica if descricao else ''),
+      } %}
+      {% if e_obrigatorio %}{% set _ = atributos.update({'required': True}) %}{% endif %}
+      {% set _ = atributos.update(kwargs) %}
+      {{ field(**atributos) }}
+    {% endif %}
+    {% if descricao %}<p class="campo__dica" id="{{ id_dica }}">{{ descricao }}</p>{% endif %}
+    {% if field.errors %}
+      <p class="campo__erro" id="{{ id_erro }}">
+        <svg class="icone" aria-hidden="true"><use href="#i-erro"></use></svg>
+        {{ field.errors | join(' ') }}
+      </p>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{# ---------------------------------------------------------------- estado vazio #}
+{% macro vazio(titulo, texto='', link=None, rotulo_link=None) %}
+  <div class="vazio">
+    <svg class="icone vazio__icone" aria-hidden="true"><use href="#i-calendario"></use></svg>
+    <p class="vazio__titulo">{{ titulo }}</p>
+    {% if texto %}<p class="vazio__texto">{{ texto }}</p>{% endif %}
+    {% if link %}<a class="botao botao--primario" href="{{ link }}">{{ rotulo_link }}</a>{% endif %}
+  </div>
+{% endmacro %}
+
+{# ---------------------------------------------------------------- paginação #}
+{% macro paginacao(pagina, endpoint, argumentos={}) %}
+  {% if pagina.pages > 1 %}
+  <nav class="paginacao" aria-label="Paginação">
+    {% if pagina.has_prev %}
+      <a class="botao botao--secundario botao--pequeno" href="{{ url_for(endpoint, page=pagina.prev_num, **argumentos) }}">
+        <svg class="icone" aria-hidden="true"><use href="#i-seta-esq"></use></svg> Anterior</a>
+    {% endif %}
+    <span class="paginacao__info">Página {{ pagina.page }} de {{ pagina.pages }} · {{ pagina.total }} registro(s)</span>
+    {% if pagina.has_next %}
+      <a class="botao botao--secundario botao--pequeno" href="{{ url_for(endpoint, page=pagina.next_num, **argumentos) }}">
+        Próxima <svg class="icone" aria-hidden="true"><use href="#i-seta-dir"></use></svg></a>
+    {% endif %}
+  </nav>
+  {% endif %}
+{% endmacro %}
+
+{# ---------------------------------------------------------------- botão POST com confirmação #}
+{% macro acao_post(url, rotulo, confirmar=None, estilo='secundario', icone=None, extras={}, titulo=None) %}
+  <form method="post" action="{{ url }}" class="form-inline" {% if confirmar %}data-confirmar="{{ confirmar }}"{% endif %}>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for nome, valor in extras.items() %}<input type="hidden" name="{{ nome }}" value="{{ valor }}">{% endfor %}
+    <button type="submit" class="botao botao--{{ estilo }} botao--pequeno"{% if titulo %} aria-label="{{ titulo }}" title="{{ titulo }}"{% endif %}>
+      {% if icone %}<svg class="icone" aria-hidden="true"><use href="#i-{{ icone }}"></use></svg>{% endif %}
+      {{ rotulo }}
+    </button>
+  </form>
+{% endmacro %}
+
+{# ---------------------------------------------------------------- terminal / carteira #}
+{% macro kpi(rotulo, valor, nota=None, classe='', classe_valor='') %}
+  <article class="kpi {{ classe }}">
+    <p class="kpi__rotulo">{{ rotulo }}</p>
+    <p class="kpi__valor {{ classe_valor }}">{{ valor }}</p>
+    {% if nota %}<p class="kpi__nota">{{ nota }}</p>{% endif %}
+  </article>
+{% endmacro %}
+
+{% macro selo_classe(classe) %}
+  <span class="selo selo--{{ classe | lower }}">{{ classe | classe_ativo }}</span>
+{% endmacro %}
+
+{% macro icone_ativo(ativo, tamanho='') %}
+  {% set icones = {'ACAO': 'i-acoes', 'FII': 'i-imoveis', 'ETF': 'i-indice', 'CRIPTO': 'i-cripto'} %}
+  {% set simbolos = {'BTC': '₿', 'ETH': 'Ξ', 'SOL': '◎', 'BNB': '◆', 'XRP': '✕', 'DOGE': 'Ð', 'ADA': '₳', 'LTC': 'Ł', 'USDT': '₮', 'USDC': '$'} %}
+  {% set icone = 'i-bdr' if ativo.is_bdr else icones.get(ativo.classe, 'i-acoes') %}
+  <span class="ticker__logo ticker__logo--{{ ativo.classe | lower }}{% if ativo.is_bdr %} ticker__logo--bdr{% endif %} {{ tamanho }}"
+        style="--ticker-hue: {{ ativo.ticker | cor_ticker }}" aria-hidden="true">
+    <span class="ticker__monograma">{{ simbolos.get(ativo.ticker, ativo.ticker[:2]) }}</span>
+    <svg class="icone ticker__tipo"><use href="#{{ icone }}"></use></svg>
+  </span>
+{% endmacro %}
+
+{% macro ticker(ativo, link=True) %}
+  <div class="ticker">
+    {{ icone_ativo(ativo) }}
+    <div>
+      {% if link %}<a class="ticker__codigo" href="{{ url_for('mercado.ativo', ticker=ativo.ticker) }}">{{ ativo.ticker }}</a>
+      {% else %}<span class="ticker__codigo">{{ ativo.ticker }}</span>{% endif %}
+      {% if ativo.is_bdr %}<span class="selo selo--bdr">BDR</span>{% endif %}
+      <span class="ticker__nome">{{ ativo.nome }}</span>
+    </div>
+  </div>
+{% endmacro %}
+
+{# Minigráfico em SVG gerado no servidor (não depende de JavaScript) #}
+{% macro minigrafico(valores, largura=110, altura=32) %}
+  {% if valores and valores | length > 1 %}
+    {% set minimo = valores | min %}{% set maximo = valores | max %}
+    {% set faixa = (maximo - minimo) or 1 %}
+    {% set passo = largura / (valores | length - 1) %}
+    {% set cor = 'var(--positivo)' if valores[-1] >= valores[0] else 'var(--negativo)' %}
+    <svg class="minigrafico" viewBox="0 0 {{ largura }} {{ altura }}" preserveAspectRatio="none" aria-hidden="true">
+      <polyline fill="none" stroke="{{ cor }}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"
+        points="{% for v in valores %}{{ '%.1f' | format(loop.index0 * passo) }},{{ '%.1f' | format(altura - 2 - (v - minimo) / faixa * (altura - 4)) }} {% endfor %}"/>
+    </svg>
+  {% endif %}
+{% endmacro %}
+
+{% macro variacao(valor) %}<span class="num {{ valor | tendencia }}">{{ valor | pct }}</span>{% endmacro %}

@@ -1,0 +1,35 @@
+# Blueprint do Render (https://render.com): cria o banco PostgreSQL e o serviço web.
+# No painel do Render: New > Blueprint > selecione este repositório.
+databases:
+  - name: investsim-db
+    plan: free
+    databaseName: investsim
+    user: investsim
+
+services:
+  - type: web
+    name: investsim
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # init-db e seed são idempotentes: podem rodar a cada deploy sem apagar dados.
+    startCommand: flask init-db && flask seed && gunicorn wsgi:app --workers 2 --timeout 60
+    healthCheckPath: /login
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.5"
+      - key: FLASK_APP
+        value: wsgi.py
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEMO_PASSWORD
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: investsim-db
+          property: connectionString
+      - key: FUSO_HORARIO
+        value: America/Sao_Paulo
+      # Token gratuito de https://brapi.dev (cotações reais). Sem ele, o sistema roda em modo demonstração.
+      - key: BRAPI_TOKEN
+        sync: false

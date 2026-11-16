@@ -1,0 +1,94 @@
+{% set esconder_menu = true %}
+{% extends "base.html" %}
+{% block titulo %}Relatório — {{ carteira.nome }}{% endblock %}
+{% block body_class %}pagina-impressao{% endblock %}
+{% block conteudo %}
+<div class="relatorio" data-relatorio-impressao>
+  <div class="relatorio__barra nao-imprimir">
+    <a class="botao botao--secundario" href="{{ url_for('carteiras.detalhe', carteira_id=carteira.id) }}">
+      <svg class="icone" aria-hidden="true"><use href="#i-seta-esq"></use></svg> Voltar</a>
+    <button class="botao botao--primario" type="button" data-imprimir>
+      <svg class="icone" aria-hidden="true"><use href="#i-impressora"></use></svg> Imprimir / Salvar em PDF</button>
+  </div>
+
+  <header class="relatorio__capa">
+    <p class="relatorio__sistema">InvestSim · Relatório de carteira simulada</p>
+    <h1>{{ carteira.nome }}</h1>
+    <p>{{ carteira.usuario.nome }} · gerado em {{ gerado_em | data_br }}{% if i %} · período de {{ i.inicio | data_br }} a {{ i.fim | data_br }}{% endif %}</p>
+    {% if MODO_DEMO %}<p><strong>Atenção:</strong> dados de mercado simulados (modo demonstração).</p>{% endif %}
+  </header>
+
+  {% if r.vazio %}
+    <p>Esta carteira ainda não tem operações.</p>
+  {% else %}
+  <h2>Resumo</h2>
+  <div class="relatorio__kpis">
+    <div><small>Patrimônio</small><strong>{{ i.patrimonio | moeda }}</strong></div>
+    <div><small>Investido líquido</small><strong>{{ i.investido_liquido | moeda }}</strong></div>
+    <div><small>Resultado</small><strong class="{{ i.lucro | tendencia }}">{{ i.lucro | moeda }}</strong></div>
+    <div><small>Proventos</small><strong>{{ i.proventos | moeda }}</strong></div>
+    <div><small>Rentabilidade</small><strong class="{{ i.rentabilidade | tendencia }}">{{ i.rentabilidade | pct }}</strong></div>
+    <div><small>CDI no período</small><strong>{{ i.cdi_periodo | pct }}</strong></div>
+    <div><small>% do CDI</small><strong>{{ (i.pct_cdi | numero(1) ~ '%') if i.pct_cdi is not none else '—' }}</strong></div>
+    <div><small>Se estivesse no CDI</small><strong>{{ i.espelho_cdi | moeda }}</strong></div>
+    <div><small>Rentab. anualizada</small><strong>{{ i.rentabilidade_anualizada | pct }}</strong></div>
+    <div><small>Volatilidade anual</small><strong>{{ i.volatilidade | pct(1, False) }}</strong></div>
+    <div><small>Maior queda</small><strong>{{ i.max_drawdown | pct(1) }}</strong></div>
+    <div><small>Operações</small><strong>{{ operacoes | length }}</strong></div>
+  </div>
+
+  <h2>Rentabilidade acumulada × CDI</h2>
+  <div class="grafico"><canvas id="grafico-carteira" role="img" aria-label="Rentabilidade acumulada da carteira e do CDI"></canvas></div>
+
+  <h2>Posições em {{ i.fim | data_br }}</h2>
+  <table class="relatorio__tabela">
+    <thead><tr><th>Ativo</th><th>Classe</th><th class="dir">Qtd.</th><th class="dir">Preço médio</th><th class="dir">Cotação</th><th class="dir">Valor</th><th class="dir">Resultado</th><th class="dir">Proventos</th><th class="dir">Peso</th></tr></thead>
+    <tbody>
+      {% for p in r.posicoes %}
+      <tr><td>{{ p.ticker }}</td><td>{{ p.classe | classe_ativo }}</td><td class="dir">{{ p.quantidade | quantidade }}</td>
+          <td class="dir">{{ p.preco_medio | preco if p.quantidade else '—' }}</td><td class="dir">{{ p.preco_atual | preco }}</td>
+          <td class="dir">{{ p.valor | moeda }}</td><td class="dir {{ p.resultado | tendencia }}">{{ p.resultado | moeda }}</td>
+          <td class="dir">{{ p.proventos | moeda }}</td><td class="dir">{{ p.peso | numero(1) }}%</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Mês a mês</h2>
+  <table class="relatorio__tabela">
+    <thead><tr><th>Mês</th><th class="dir">Carteira</th><th class="dir">CDI</th><th class="dir">% do CDI</th></tr></thead>
+    <tbody>
+      {% for m in r.mensal %}
+      <tr><td>{{ (m.ano, m.mes) | mes_ano }}</td><td class="dir {{ m.carteira | tendencia }}">{{ m.carteira | pct }}</td>
+          <td class="dir">{{ m.cdi | pct }}</td><td class="dir">{{ (m.pct_cdi | numero(0) ~ '%') if m.pct_cdi is not none else '—' }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Operações</h2>
+  <table class="relatorio__tabela">
+    <thead><tr><th>Data</th><th>Tipo</th><th>Ativo</th><th class="dir">Qtd.</th><th class="dir">Preço</th><th class="dir">Taxas</th><th class="dir">Total</th></tr></thead>
+    <tbody>
+      {% for op in operacoes %}
+      <tr><td>{{ op.data | data_br }}</td><td>{{ 'Compra' if op.tipo == 'COMPRA' else 'Venda' }}</td><td>{{ op.ativo.ticker }}</td>
+          <td class="dir">{{ op.quantidade | quantidade }}</td><td class="dir">{{ op.preco | preco }}</td>
+          <td class="dir">{{ op.taxas | moeda }}</td><td class="dir">{{ op.valor_total | moeda }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <p class="relatorio__aviso">
+    Metodologia: rentabilidade pelo método de cotas (TWR), em que aportes e resgates não distorcem o resultado;
+    proventos ficam na carteira como caixa. CDI diário da série 12 do Banco Central (SGS). "Se estivesse no CDI" aplica
+    cada aporte e resgate, nas mesmas datas, a 100% do CDI. Simulação educacional, sem impostos; não é recomendação de
+    investimento. Rentabilidade passada não garante rentabilidade futura.
+  </p>
+</div>
+{% if grafico %}<script type="application/json" id="dados-grafico">{{ grafico | tojson }}</script>{% endif %}
+{% endblock %}
+{% block scripts %}
+{% if grafico %}
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/graficos.js') }}" defer></script>
+{% endif %}
+{% endblock %}

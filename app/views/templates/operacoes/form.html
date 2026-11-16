@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% set titulo = 'Editar operação' if operacao else 'Nova operação' %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block trilha %}
+  <a href="{{ url_for('carteiras.painel') }}">Minhas carteiras</a>
+  <a href="{{ url_for('carteiras.detalhe', carteira_id=carteira.id) }}">{{ carteira.nome }}</a>
+  <span>{{ titulo }}</span>
+{% endblock %}
+{% block conteudo %}
+{% if not operacao %}
+<ol class="etapas-carteira etapas-carteira--operacao" aria-label="Etapas para começar a simulação">
+  <li class="etapas-carteira__concluida"><span><svg class="icone" aria-hidden="true"><use href="#i-sucesso"></use></svg></span><div><strong>Carteira criada</strong><small>{{ carteira.nome }}</small></div></li>
+  <li aria-current="step"><span>2</span><strong>Simule</strong></li>
+</ol>
+{% endif %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1 class="titulo-pagina">{{ titulo }}</h1>
+    <p class="texto-suave">Carteira <strong>{{ carteira.nome }}</strong> · o preço é o fechamento do dia escolhido (ou do último pregão antes dele).</p>
+  </div>
+</div>
+
+<form method="post" novalidate data-validar data-operacao data-url-cotacao="{{ url_for('api.cotacao') }}">
+  {{ form.hidden_tag() }}
+  <div class="grade grade--formulario-resumo">
+    <div class="cartao">
+      {% set erro_ativo = form.ativo_id.errors %}
+      <div class="campo {% if erro_ativo %}campo--erro{% endif %}">
+        <label class="campo__rotulo" for="ativo_id">Ativo <span class="obrigatorio" aria-hidden="true">*</span></label>
+        <select class="campo__controle" id="ativo_id" name="ativo_id" required
+                aria-invalid="{{ 'true' if erro_ativo else 'false' }}" {% if erro_ativo %}aria-describedby="ativo_id-erro"{% endif %}>
+          <option value="0">Escolha o ativo…</option>
+          {% for grupo, ativos in grupos.items() %}
+          <optgroup label="{{ grupo }}">
+            {% for a in ativos %}
+            <option value="{{ a.id }}" data-classe="{{ a.classe }}" {% if form.ativo_id.data == a.id %}selected{% endif %}>{{ a.ticker }} — {{ a.nome }}</option>
+            {% endfor %}
+          </optgroup>
+          {% endfor %}
+        </select>
+        {% if erro_ativo %}<p class="campo__erro" id="ativo_id-erro">{{ erro_ativo | join(' ') }}</p>{% endif %}
+      </div>
+
+      <div class="grade grade--2" style="margin-top: 14px">
+        <fieldset class="campo">
+          <legend class="campo__rotulo">Operação</legend>
+          <div class="segmentado segmentado--operacao">
+            {% for opcao in form.tipo %}<label>{{ opcao() }}<span>{{ opcao.label.text }}</span></label>{% endfor %}
+          </div>
+        </fieldset>
+        {{ campo(form.data, max=hoje_iso) }}
+      </div>
+
+      <fieldset class="campo" style="margin-top: 14px">
+        <legend class="campo__rotulo">Informar por</legend>
+        <div class="segmentado">
+          {% for opcao in form.modo %}<label>{{ opcao() }}<span>{{ opcao.label.text }}</span></label>{% endfor %}
+        </div>
+      </fieldset>
+      <div class="grade grade--2" style="margin-top: 10px">
+        {{ campo(form.valor, classe='', obrigatorio=False, inputmode='decimal', step='0.01', min='0', type='number', placeholder='Ex.: 1000,00',
+                 dica='A quantidade é calculada pelo preço do dia (arredonda para baixo).', **{'data-campo-modo': 'VALOR'}) }}
+        {{ campo(form.quantidade, obrigatorio=False, inputmode='decimal', step='any', min='0', type='number',
+                 dica='Ações, BDRs, FIIs e ETFs: unidades inteiras. Cripto: até 8 casas.', **{'data-campo-modo': 'QUANTIDADE'}) }}
+      </div>
+
+      <details class="campo" style="margin-top: 14px" {% if form.preco.data or form.taxas.data or form.preco.errors or form.taxas.errors %}open{% endif %}>
+        <summary class="botao botao--texto botao--pequeno" style="justify-self: start">Preço manual, taxas e observação</summary>
+        <div class="grade grade--2" style="margin-top: 10px">
+          {{ campo(form.preco, type='number', step='any', min='0', inputmode='decimal') }}
+          {{ campo(form.taxas, type='number', step='0.01', min='0', inputmode='decimal', dica='Corretagem, emolumentos etc.') }}
+          {{ campo(form.observacao, classe='grade__inteiro', rows=2, placeholder='Ex.: aporte do 13º salário') }}
+        </div>
+      </details>
+    </div>
+
+    <aside class="cartao resumo-operacao" aria-labelledby="resumo-titulo" aria-live="polite">
+      <h2 class="titulo-secao" id="resumo-titulo">Resumo</h2>
+      <div class="cotacao-box">
+        <span class="kpi__rotulo" data-cotacao-rotulo>Cotação</span>
+        <span class="cotacao-box__preco" data-cotacao-preco>—</span>
+        <small class="texto-suave" data-cotacao-info>Escolha o ativo e a data.</small>
+      </div>
+      <dl class="lista-dados">
+        <dt>Quantidade</dt><dd data-resumo-quantidade>—</dd>
+        <dt>Taxas</dt><dd data-resumo-taxas>—</dd>
+        <dt>Total</dt><dd class="total-operacao" data-resumo-total>—</dd>
+      </dl>
+      <div class="acoes-form acoes-form--coluna">
+        <button type="submit" class="botao botao--primario botao--bloco">{{ 'Salvar alterações' if operacao else 'Registrar operação' }}</button>
+        <a class="botao botao--secundario botao--bloco" href="{{ url_for('carteiras.detalhe', carteira_id=carteira.id) }}">Cancelar</a>
+      </div>
+    </aside>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/operacao.js') }}" defer></script>
+{% endblock %}

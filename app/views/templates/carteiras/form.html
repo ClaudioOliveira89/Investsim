@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo, acao_post %}
+{% set titulo = 'Editar carteira' if carteira else 'Nova carteira' %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block trilha %}
+  <a href="{{ url_for('carteiras.painel') }}">Minhas carteiras</a>
+  {% if carteira %}<a href="{{ url_for('carteiras.detalhe', carteira_id=carteira.id) }}">{{ carteira.nome }}</a>{% endif %}
+  <span>{{ titulo }}</span>
+{% endblock %}
+{% block conteudo %}
+{% if carteira %}
+<div class="cabecalho-pagina"><div><p class="sobretitulo"><svg class="icone" aria-hidden="true"><use href="#i-editar"></use></svg> Personalização</p><h1 class="titulo-pagina">{{ titulo }}</h1><p class="texto-suave">Atualize o nome ou o objetivo desta carteira.</p></div></div>
+{% else %}
+<div class="cabecalho-pagina cabecalho-pagina--criacao">
+  <div><p class="sobretitulo"><svg class="icone" aria-hidden="true"><use href="#i-mercado"></use></svg> Simulação personalizada</p><h1 class="titulo-pagina">Dê um nome ao seu objetivo</h1><p class="texto-suave">Crie uma carteira para organizar seus investimentos e começar a simular.</p></div>
+  <ol class="etapas-carteira" aria-label="Etapas para começar a simulação"><li aria-current="step"><span>1</span><strong>Nomeie</strong></li><li><span>2</span><strong>Simule</strong></li></ol>
+</div>
+<div class="grade grade--2 grade--criar-carteira">
+  <aside class="cartao cartao-guia-carteira" aria-labelledby="guia-carteira-titulo">
+    <div class="carteira-icone carteira-icone--grande"><svg class="icone" aria-hidden="true"><use href="#i-carteira"></use></svg></div>
+    <p class="sobretitulo">Seu espaço, suas regras</p>
+    <h2 id="guia-carteira-titulo">Uma carteira para cada plano</h2>
+    <p>Separe objetivos diferentes para acompanhar cada simulação com mais clareza. Você pode criar quantas carteiras quiser e dar um nome único para cada uma.</p>
+    <ul class="guia-carteira__lista"><li><svg class="icone" aria-hidden="true"><use href="#i-sucesso"></use></svg> Organize por objetivo ou estratégia</li><li><svg class="icone" aria-hidden="true"><use href="#i-sucesso"></use></svg> Compare o desempenho com o CDI</li><li><svg class="icone" aria-hidden="true"><use href="#i-sucesso"></use></svg> Simule aportes e resgates ao longo do tempo</li></ul>
+    <div class="guia-carteira__proximo"><span>Próximo passo</span><strong>Escolher um ativo e registrar a primeira simulação</strong></div>
+  </aside>
+{% endif %}
+<div class="cartao cartao--formulario cartao--formulario-carteira">
+  {% if not carteira %}<div class="form-carteira__cabecalho"><span class="form-carteira__passo">Etapa 1 de 2</span><h2>Como vamos chamar sua carteira?</h2><p>O nome aparece no painel e nos relatórios da sua simulação.</p></div>{% endif %}
+  <form method="post" novalidate data-validar {% if not carteira %}data-sugestoes-carteira{% endif %}>
+    {{ form.hidden_tag() }}
+    {{ campo(form.nome, maxlength=80, placeholder='Ex.: Aposentadoria', autofocus=not carteira) }}
+    {% if not carteira %}
+    <div class="sugestoes-carteira" aria-label="Sugestões de nome">
+      <span class="sugestoes-carteira__rotulo">Escolha uma ideia para começar</span>
+      <div class="sugestoes-carteira__opcoes">
+        <button type="button" data-nome-carteira="Aposentadoria" data-descricao-carteira="Investimentos de longo prazo para o futuro." aria-pressed="false">Aposentadoria</button>
+        <button type="button" data-nome-carteira="Renda com dividendos" data-descricao-carteira="Acompanhar ativos focados em geração de renda." aria-pressed="false">Dividendos</button>
+        <button type="button" data-nome-carteira="Reserva de emergência" data-descricao-carteira="Simular uma reserva com foco em segurança e liquidez." aria-pressed="false">Reserva</button>
+        <button type="button" data-nome-carteira="Criptoativos" data-descricao-carteira="Acompanhar uma estratégia de ativos digitais." aria-pressed="false">Cripto</button>
+      </div>
+    </div>
+    {% endif %}
+    {{ campo(form.descricao, rows=3, placeholder='Ex.: longo prazo, foco em dividendos e proteção contra inflação') }}
+    {% if not carteira %}<p class="form-carteira__dica"><svg class="icone" aria-hidden="true"><use href="#i-info"></use></svg> Cada nome precisa ser diferente nas suas carteiras. Você poderá mudar o nome depois.</p>{% endif %}
+    <div class="acoes-form">
+      <a class="botao botao--secundario" href="{{ url_for('carteiras.detalhe', carteira_id=carteira.id) if carteira else url_for('carteiras.painel') }}">Cancelar</a>
+      <button type="submit" class="botao botao--primario">{% if not carteira %}<svg class="icone" aria-hidden="true"><use href="#i-carteira"></use></svg>{% endif %}{{ 'Salvar' if carteira else 'Criar carteira' }}</button>
+    </div>
+    {% if not carteira %}<p class="form-carteira__fim">Ao criar, você segue direto para registrar a primeira operação simulada.</p>{% endif %}
+  </form>
+  {% if carteira %}
+  <div class="cartao__rodape">
+    {{ acao_post(url_for('carteiras.excluir', carteira_id=carteira.id), 'Excluir carteira',
+                 confirmar='Excluir a carteira “' ~ carteira.nome ~ '” e todas as suas ' ~ (carteira.operacoes | length) ~ ' operações? Esta ação não pode ser desfeita.',
+                 estilo='perigo', icone='lixeira') }}
+  </div>
+  {% endif %}
+</div>
+{% if not carteira %}</div>{% endif %}
+{% endblock %}

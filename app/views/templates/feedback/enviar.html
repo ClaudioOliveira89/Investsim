@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block titulo %}Relatar teste{% endblock %}
+{% block trilha %}<a href="{{ url_for('carteiras.painel') }}">Painel</a><span>Relatar teste</span>{% endblock %}
+{% block conteudo %}
+<div class="feedback">
+  <header class="feedback__cabecalho">
+    <a class="marca marca--escura" href="{{ url_for('carteiras.painel') }}">
+      <svg class="icone marca__icone" aria-hidden="true"><use href="#i-logo"></use></svg>
+      <span>Invest<strong>Sim</strong></span>
+    </a>
+    <h1 class="titulo-pagina">Laudo de teste do sistema</h1>
+    <p class="texto-suave">
+      Obrigado por testar! Conte o que funcionou, o que deu errado e o que você não testou.
+      Seja sincero(a): os problemas encontrados são justamente o que mais ajuda a melhorar.
+    </p>
+    <details class="dica-teste">
+      <summary>Roteiro sugerido de teste (clique para ver)</summary>
+      <ol>
+        <li>Crie sua conta em “Criar conta” (ou solicite ao responsável a senha inicial da conta de demonstração).</li>
+        <li>Crie uma carteira e registre aplicações em datas passadas (por valor em R$ ou por quantidade).</li>
+        <li>Confira se o preço do dia foi buscado e se a quantidade calculada faz sentido.</li>
+        <li>Tente vender mais do que você tem: o sistema deve impedir.</li>
+        <li>Abra o relatório: compare a carteira com o CDI, veja posições, alocação e o mês a mês.</li>
+        <li>Gere o relatório em PDF e exporte o CSV.</li>
+        <li>Navegue pelo Mercado (Ações e BDRs, FIIs, ETFs, Cripto) e use “Simular compra”.</li>
+        <li>Teste também pelo celular e no tema claro/escuro.</li>
+      </ol>
+    </details>
+  </header>
+
+  <form class="cartao cartao--formulario" method="post" enctype="multipart/form-data" novalidate data-validar>
+    {{ form.hidden_tag() }}
+    <fieldset class="secao-form">
+      <legend class="titulo-secao">Quem testou</legend>
+      <div class="grade grade--2">
+        {{ campo(form.nome_testador, autocomplete='name') }}
+        {{ campo(form.email, autocomplete='email', dica='Opcional, para eu te contar o que foi corrigido.') }}
+        {{ campo(form.perfil_testador) }}
+        {{ campo(form.data_teste) }}
+      </div>
+    </fieldset>
+
+    <fieldset class="secao-form">
+      <legend class="titulo-secao">Resultado do teste</legend>
+      {{ campo(form.funcionou, rows=4, placeholder='Ex.: Criação de carteira, compra por valor, relatório comparado ao CDI…') }}
+      {{ campo(form.nao_funcionou, rows=4, placeholder='Descreva o passo a passo, o que aconteceu e o que você esperava que acontecesse.') }}
+      {{ campo(form.nao_testado, rows=3, placeholder='Ex.: Não testei a área de administrador porque…') }}
+      {{ campo(form.sugestoes, rows=3, placeholder='Ideias de melhoria de usabilidade, visual, textos…') }}
+
+      <fieldset class="campo {% if form.nota.errors %}campo--erro{% endif %}">
+        <legend class="campo__rotulo">{{ form.nota.label.text }} <span class="obrigatorio" aria-hidden="true">*</span></legend>
+        <div class="nota">
+          {% for opcao in form.nota %}
+          <label class="nota__opcao">{{ opcao(required=True) }}<span>{{ opcao.label.text }}</span></label>
+          {% endfor %}
+        </div>
+        <p class="campo__dica">1 = muito ruim · 5 = excelente</p>
+        {% if form.nota.errors %}<p class="campo__erro">{{ form.nota.errors | join(' ') }}</p>{% endif %}
+      </fieldset>
+    </fieldset>
+
+    <fieldset class="secao-form">
+      <legend class="titulo-secao">Prints das telas</legend>
+      {{ campo(form.prints, accept='image/png,image/jpeg,image/webp,image/gif', multiple=True, **{'data-previa-imagens': ''}) }}
+      <div class="previas" data-previas aria-live="polite"></div>
+    </fieldset>
+
+    <div class="acoes-form">
+      <button type="submit" class="botao botao--primario">Enviar laudo de teste</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% set titulo = ('Editar ' ~ ativo.ticker) if ativo else 'Novo ativo' %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block trilha %}<a href="{{ url_for('mercado.catalogo') }}">Catálogo de ativos</a><span>{{ titulo }}</span>{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina"><h1 class="titulo-pagina">{{ titulo }}</h1></div>
+<div class="cartao cartao--formulario">
+  <p class="texto-suave">Ao salvar, o sistema consulta a fonte de dados para confirmar que o símbolo tem cotação.</p>
+  <form method="post" novalidate data-validar>
+    {{ form.hidden_tag() }}
+    <div class="grade grade--2">
+      {{ campo(form.ticker, placeholder='PETR4', maxlength=12, style='text-transform: uppercase') }}
+      {{ campo(form.classe) }}
+      {{ campo(form.nome, classe='grade__inteiro', placeholder='Petrobras PN') }}
+      {{ campo(form.simbolo_fonte, classe='grade__inteiro', placeholder='PETR4', style='text-transform: uppercase') }}
+    </div>
+    <div class="acoes-form">
+      <a class="botao botao--secundario" href="{{ url_for('mercado.catalogo') }}">Cancelar</a>
+      <button type="submit" class="botao botao--primario">Salvar ativo</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

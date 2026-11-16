@@ -1,0 +1,46 @@
+name: Testes
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: investsim
+          POSTGRES_PASSWORD: investsim
+          POSTGRES_DB: investsim_teste
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U investsim"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+
+    env:
+      TEST_PG_URL: postgresql+psycopg://investsim:investsim@localhost:5432/investsim_teste
+      E2E_CANAL: ""   # usa o Chromium do Playwright no Linux
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Instalar dependências
+        run: |
+          pip install -r requirements-dev.txt
+          python -m playwright install --with-deps chromium
+      - name: Verificar estilo e erros comuns (ruff)
+        run: ruff check app tests scripts wsgi.py
+      - name: Rodar testes (unitários, integração, PostgreSQL e E2E)
+        run: pytest --cov=app --cov-report=term-missing --junitxml=test-results/junit.xml
+      - name: Publicar resultado
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultado-testes
+          path: test-results/

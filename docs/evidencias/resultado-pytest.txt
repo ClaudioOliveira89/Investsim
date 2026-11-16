@@ -1,0 +1,216 @@
+# Execução: 15/11/2026 19:03 · Python 3.14.10 · Windows 11 · PostgreSQL real: sim
+
+============================= test session starts =============================
+platform win32 -- Python 3.14.10, pytest-9.2.0, pluggy-1.7.0 -- .\.venv\Scripts\python.exe
+rootdir: (projeto)
+configfile: pytest.ini
+testpaths: tests
+plugins: cov-7.1.0, playwright-0.10.0
+collecting ... collected 153 items
+
+tests/e2e/test_frontend.py::test_login_valida_no_navegador_antes_de_enviar[chromium] PASSED [  0%]
+tests/e2e/test_frontend.py::test_login_errado_mostra_mensagem[chromium] PASSED [  1%]
+tests/e2e/test_frontend.py::test_painel_com_carteira_exemplo[chromium] PASSED [  1%]
+tests/e2e/test_frontend.py::test_cadastro_carteira_compra_e_relatorio[chromium] PASSED [  2%]
+tests/e2e/test_frontend.py::test_modo_quantidade_e_venda_maior_que_a_posicao[chromium] PASSED [  3%]
+tests/e2e/test_frontend.py::test_relatorio_alterna_grafico_de_patrimonio[chromium] PASSED [  3%]
+tests/e2e/test_frontend.py::test_excluir_operacao_pede_confirmacao[chromium] PASSED [  4%]
+tests/e2e/test_frontend.py::test_terminal_de_mercado_e_grafico_do_ativo[chromium] PASSED [  5%]
+tests/e2e/test_frontend.py::test_tema_claro_persiste[chromium] PASSED    [  5%]
+tests/e2e/test_frontend.py::test_menu_lateral_no_celular[chromium] PASSED [  6%]
+tests/e2e/test_frontend.py::test_segundo_envio_do_formulario_e_bloqueado[chromium] PASSED [  7%]
+tests/e2e/test_frontend.py::test_feedback_publico_com_print[chromium] PASSED [  7%]
+tests/e2e/test_frontend.py::test_feedback_bloqueia_mais_de_tres_prints[chromium] PASSED [  8%]
+tests/integration/test_auth_permissoes.py::test_pagina_de_login PASSED   [  9%]
+tests/integration/test_auth_permissoes.py::test_rotas_protegidas_redirecionam_para_login PASSED [  9%]
+tests/integration/test_auth_permissoes.py::test_login_com_sucesso_e_logout PASSED [ 10%]
+tests/integration/test_auth_permissoes.py::test_login_invalido_tem_mensagem_generica[admin@teste.com-errada123] PASSED [ 11%]
+tests/integration/test_auth_permissoes.py::test_login_invalido_tem_mensagem_generica[naoexiste@teste.com-Senha123] PASSED [ 11%]
+tests/integration/test_auth_permissoes.py::test_usuario_inativo_nao_entra PASSED [ 12%]
+tests/integration/test_auth_permissoes.py::test_login_valida_campos PASSED [ 13%]
+tests/integration/test_auth_permissoes.py::test_redireciona_para_next_seguro_e_bloqueia_open_redirect PASSED [ 13%]
+tests/integration/test_auth_permissoes.py::test_alterar_senha PASSED     [ 14%]
+tests/integration/test_auth_permissoes.py::test_investidor_nao_acessa_area_administrativa[/mercado/ativos] PASSED [ 15%]
+tests/integration/test_auth_permissoes.py::test_investidor_nao_acessa_area_administrativa[/mercado/ativos/novo] PASSED [ 15%]
+tests/integration/test_auth_permissoes.py::test_investidor_nao_acessa_area_administrativa[/usuarios/] PASSED [ 16%]
+tests/integration/test_auth_permissoes.py::test_investidor_nao_acessa_area_administrativa[/usuarios/novo] PASSED [ 16%]
+tests/integration/test_auth_permissoes.py::test_investidor_nao_acessa_area_administrativa[/feedback/admin] PASSED [ 17%]
+tests/integration/test_auth_permissoes.py::test_investidor_nao_acessa_area_administrativa[/feedback/admin/relatorio] PASSED [ 18%]
+tests/integration/test_auth_permissoes.py::test_investidor_nao_ve_menu_administrativo PASSED [ 18%]
+tests/integration/test_auth_permissoes.py::test_admin_acessa_area_administrativa[/mercado/ativos] PASSED [ 19%]
+tests/integration/test_auth_permissoes.py::test_admin_acessa_area_administrativa[/mercado/ativos/novo] PASSED [ 20%]
+tests/integration/test_auth_permissoes.py::test_admin_acessa_area_administrativa[/usuarios/] PASSED [ 20%]
+tests/integration/test_auth_permissoes.py::test_admin_acessa_area_administrativa[/feedback/admin] PASSED [ 21%]
+tests/integration/test_auth_permissoes.py::test_cabecalhos_de_seguranca PASSED [ 22%]
+tests/integration/test_carteiras.py::test_painel_vazio_convida_a_criar_carteira PASSED [ 22%]
+tests/integration/test_carteiras.py::test_criar_carteira_leva_para_primeira_operacao PASSED [ 23%]
+tests/integration/test_carteiras.py::test_nome_de_carteira_unico_por_usuario PASSED [ 24%]
+tests/integration/test_carteiras.py::test_carteira_de_outro_usuario_e_invisivel PASSED [ 24%]
+tests/integration/test_carteiras.py::test_excluir_carteira PASSED        [ 25%]
+tests/integration/test_carteiras.py::test_comprar_por_valor_calcula_quantidade_pelo_fechamento PASSED [ 26%]
+tests/integration/test_carteiras.py::test_comprar_cripto_por_valor_aceita_fracao PASSED [ 26%]
+tests/integration/test_carteiras.py::test_preco_manual_e_taxas PASSED    [ 27%]
+tests/integration/test_carteiras.py::test_validacoes_do_formulario[extra0-Escolha o ativo.] PASSED [ 28%]
+tests/integration/test_carteiras.py::test_validacoes_do_formulario[extra1-Informe quanto quer aplicar] PASSED [ 28%]
+tests/integration/test_carteiras.py::test_validacoes_do_formulario[extra2-Informe a quantidade.] PASSED [ 29%]
+tests/integration/test_carteiras.py::test_validacoes_do_formulario[extra3-unidades inteiras] PASSED [ 30%]
+tests/integration/test_carteiras.py::test_validacoes_do_formulario[extra4-O valor n\xe3o compra nem 1 unidade] PASSED [ 30%]
+tests/integration/test_carteiras.py::test_validacoes_do_formulario[extra5-n\xe3o podem ser negativas] PASSED [ 31%]
+tests/integration/test_carteiras.py::test_data_futura_e_recusada PASSED  [ 32%]
+tests/integration/test_carteiras.py::test_venda_maior_que_a_posicao_e_bloqueada PASSED [ 32%]
+tests/integration/test_carteiras.py::test_nao_exclui_compra_da_qual_uma_venda_depende PASSED [ 33%]
+tests/integration/test_carteiras.py::test_editar_operacao PASSED         [ 33%]
+tests/integration/test_carteiras.py::test_ativo_oculto_nao_aparece_para_novas_operacoes PASSED [ 34%]
+tests/integration/test_carteiras.py::test_relatorio_completo PASSED      [ 35%]
+tests/integration/test_carteiras.py::test_indicadores_do_relatorio_batem_com_o_motor PASSED [ 35%]
+tests/integration/test_carteiras.py::test_impressao_e_csv PASSED         [ 36%]
+tests/integration/test_carteiras.py::test_painel_consolida_carteiras PASSED [ 37%]
+tests/integration/test_feedback_erros.py::test_formulario_publico_de_feedback_sem_login PASSED [ 37%]
+tests/integration/test_feedback_erros.py::test_envia_feedback_com_print PASSED [ 38%]
+tests/integration/test_feedback_erros.py::test_feedback_campos_obrigatorios PASSED [ 39%]
+tests/integration/test_feedback_erros.py::test_feedback_rejeita_arquivo_que_nao_e_imagem PASSED [ 39%]
+tests/integration/test_feedback_erros.py::test_admin_trata_feedback_e_gera_relatorio PASSED [ 40%]
+tests/integration/test_feedback_erros.py::test_pagina_404_amigavel PASSED [ 41%]
+tests/integration/test_feedback_erros.py::test_405_amigavel PASSED       [ 41%]
+tests/integration/test_feedback_erros.py::test_erro_500_amigavel_e_registrado PASSED [ 42%]
+tests/integration/test_feedback_erros.py::test_formulario_sem_token_csrf_e_rejeitado PASSED [ 43%]
+tests/integration/test_feedback_erros.py::test_upload_maior_que_o_limite_retorna_413 PASSED [ 43%]
+tests/integration/test_feedback_erros.py::test_banco_indisponivel_mostra_mensagem_clara PASSED [ 44%]
+tests/integration/test_mercado_api.py::test_terminal_lista_ativos_por_classe[ACAO-PETR4] PASSED [ 45%]
+tests/integration/test_mercado_api.py::test_terminal_lista_ativos_por_classe[FII-KNRI11] PASSED [ 45%]
+tests/integration/test_mercado_api.py::test_terminal_lista_ativos_por_classe[CRIPTO-BTC] PASSED [ 46%]
+tests/integration/test_mercado_api.py::test_classe_invalida_cai_em_acoes PASSED [ 47%]
+tests/integration/test_mercado_api.py::test_pagina_do_ativo PASSED       [ 47%]
+tests/integration/test_mercado_api.py::test_api_cotacao_usa_ultimo_pregao_no_fim_de_semana PASSED [ 48%]
+tests/integration/test_mercado_api.py::test_api_cotacao_erros[ativo_id=999&data=2026-01-05-404-Ativo n\xe3o encontrado] PASSED [ 49%]
+tests/integration/test_mercado_api.py::test_api_cotacao_erros[ativo_id={id}&data=05/01/2026-400-Data inv\xe1lida] PASSED [ 49%]
+tests/integration/test_mercado_api.py::test_api_cotacao_erros[ativo_id={id}&data=2999-01-01-422-futuro] PASSED [ 50%]
+tests/integration/test_mercado_api.py::test_api_cotacao_erros[ativo_id={id}&data=2010-01-05-422-N\xe3o h\xe1 cota\xe7\xe3o] PASSED [ 50%]
+tests/integration/test_mercado_api.py::test_api_historico PASSED         [ 51%]
+tests/integration/test_mercado_api.py::test_api_exige_login PASSED       [ 52%]
+tests/integration/test_mercado_api.py::test_admin_cadastra_ativo_validando_na_fonte PASSED [ 52%]
+tests/integration/test_mercado_api.py::test_admin_recusa_simbolo_sem_cotacao PASSED [ 53%]
+tests/integration/test_mercado_api.py::test_admin_oculta_ativo PASSED    [ 54%]
+tests/integration/test_mercado_api.py::test_cadastro_publico_cria_investidor_e_entra PASSED [ 54%]
+tests/integration/test_mercado_api.py::test_cadastro_valida_senha PASSED [ 55%]
+tests/integration/test_mercado_api.py::test_cache_baixa_uma_vez_e_reaproveita PASSED [ 56%]
+tests/integration/test_mercado_api.py::test_cache_vencido_atualiza_so_o_final PASSED [ 56%]
+tests/integration/test_mercado_api.py::test_fonte_fora_do_ar_usa_dados_salvos_e_avisa PASSED [ 57%]
+tests/integration/test_mercado_api.py::test_cdi_do_cache PASSED          [ 58%]
+tests/integration/test_mercado_api.py::test_cdi_fora_do_ar PASSED        [ 58%]
+tests/integration/test_postgres.py::test_objetos_do_schema_existem PASSED [ 59%]
+tests/integration/test_postgres.py::test_seed_e_relatorio_funcionam_no_postgres PASSED [ 60%]
+tests/integration/test_postgres.py::test_restricoes_do_banco[insert into ativo (ticker, nome, classe, simbolo_fonte) values ('petr-4', 'X', 'ACAO', 'X')-dm_ticker] PASSED [ 60%]
+tests/integration/test_postgres.py::test_restricoes_do_banco[insert into ativo (ticker, nome, classe, simbolo_fonte) values ('ABCD3', 'X', 'OPCAO', 'X')-ck_ativo_classe] PASSED [ 61%]
+tests/integration/test_postgres.py::test_restricoes_do_banco[insert into usuario (nome, email, senha_hash) values ('Ze', 'sem-arroba', 'x')-dm_email] PASSED [ 62%]
+tests/integration/test_postgres.py::test_restricoes_do_banco[sql3-dm_quantidade] PASSED [ 62%]
+tests/integration/test_postgres.py::test_restricoes_do_banco[sql4-ck_operacao_tipo] PASSED [ 63%]
+tests/integration/test_postgres.py::test_restricoes_do_banco[sql5-dm_preco] PASSED [ 64%]
+tests/integration/test_postgres.py::test_restricoes_do_banco[insert into carteira (usuario_id, nome) select usuario_id, nome from carteira limit 1-uq_carteira_usuario_nome] PASSED [ 64%]
+tests/integration/test_postgres.py::test_restricoes_do_banco[delete from ativo where id = (select ativo_id from operacao limit 1)-fk_operacao_ativo] PASSED [ 65%]
+tests/integration/test_postgres.py::test_excluir_usuario_apaga_carteiras_em_cascata PASSED [ 66%]
+tests/integration/test_postgres.py::test_cache_de_mercado_respeita_chaves PASSED [ 66%]
+tests/unit/test_feedback_service.py::test_detecta_tipo_pela_assinatura[\x89PNG\r\n\x1a\n\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00-image/png] PASSED [ 67%]
+tests/unit/test_feedback_service.py::test_detecta_tipo_pela_assinatura[\xff\xd8\xff\xe0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00-image/jpeg] PASSED [ 67%]
+tests/unit/test_feedback_service.py::test_detecta_tipo_pela_assinatura[RIFF\x00\x00\x00\x00WEBPVP8 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00-image/webp] PASSED [ 68%]
+tests/unit/test_feedback_service.py::test_detecta_tipo_pela_assinatura[GIF89a...-image/gif] PASSED [ 69%]
+tests/unit/test_feedback_service.py::test_detecta_tipo_pela_assinatura[%PDF-1.4-None] PASSED [ 69%]
+tests/unit/test_feedback_service.py::test_registra_feedback_com_prints PASSED [ 70%]
+tests/unit/test_feedback_service.py::test_rejeita_arquivo_que_nao_e_imagem PASSED [ 71%]
+tests/unit/test_feedback_service.py::test_rejeita_mais_de_tres_imagens PASSED [ 71%]
+tests/unit/test_feedback_service.py::test_rejeita_imagem_grande PASSED   [ 72%]
+tests/unit/test_feedback_service.py::test_tratativa PASSED               [ 73%]
+tests/unit/test_simulador_calculos.py::test_serie_de_patrimonio_e_cotas PASSED [ 73%]
+tests/unit/test_simulador_calculos.py::test_cdi_acumulado_e_carteira_espelho PASSED [ 74%]
+tests/unit/test_simulador_calculos.py::test_preco_medio_e_resultado_realizado PASSED [ 75%]
+tests/unit/test_simulador_calculos.py::test_indicadores PASSED           [ 75%]
+tests/unit/test_simulador_calculos.py::test_taxas_da_compra_entram_no_custo_e_na_rentabilidade PASSED [ 76%]
+tests/unit/test_simulador_calculos.py::test_proventos_viram_caixa_de_quem_tinha_a_cota_antes PASSED [ 77%]
+tests/unit/test_simulador_calculos.py::test_zerar_e_recomprar_reinicia_preco_medio PASSED [ 77%]
+tests/unit/test_simulador_calculos.py::test_cripto_em_fim_de_semana_e_preco_da_operacao_cobre_lacunas PASSED [ 78%]
+tests/unit/test_simulador_calculos.py::test_retornos_mensais PASSED      [ 79%]
+tests/unit/test_simulador_calculos.py::test_sem_operacoes_resultado_vazio PASSED [ 79%]
+tests/unit/test_simulador_calculos.py::test_preco_na_data PASSED         [ 80%]
+tests/unit/test_simulador_regras_fontes.py::test_quantidades_validas[ACAO-100] PASSED [ 81%]
+tests/unit/test_simulador_regras_fontes.py::test_quantidades_validas[FII-1] PASSED [ 81%]
+tests/unit/test_simulador_regras_fontes.py::test_quantidades_validas[ETF-3] PASSED [ 82%]
+tests/unit/test_simulador_regras_fontes.py::test_quantidades_validas[CRIPTO-0.00012345] PASSED [ 83%]
+tests/unit/test_simulador_regras_fontes.py::test_quantidades_invalidas[ACAO-0-maior que zero] PASSED [ 83%]
+tests/unit/test_simulador_regras_fontes.py::test_quantidades_invalidas[FII--1-maior que zero] PASSED [ 84%]
+tests/unit/test_simulador_regras_fontes.py::test_quantidades_invalidas[ACAO-1.5-unidades inteiras] PASSED [ 84%]
+tests/unit/test_simulador_regras_fontes.py::test_quantidades_invalidas[CRIPTO-0.123456789-8 casas] PASSED [ 85%]
+tests/unit/test_simulador_regras_fontes.py::test_quantidade_por_valor_arredonda_para_baixo PASSED [ 86%]
+tests/unit/test_simulador_regras_fontes.py::test_venda_dentro_da_posicao_e_permitida PASSED [ 86%]
+tests/unit/test_simulador_regras_fontes.py::test_venda_maior_que_a_posicao_e_bloqueada PASSED [ 87%]
+tests/unit/test_simulador_regras_fontes.py::test_venda_antes_da_compra_e_bloqueada_mesmo_que_o_total_feche PASSED [ 88%]
+tests/unit/test_simulador_regras_fontes.py::test_compra_e_venda_no_mesmo_dia_compra_vem_antes PASSED [ 88%]
+tests/unit/test_simulador_regras_fontes.py::test_posicoes_sao_por_ativo PASSED [ 89%]
+tests/unit/test_simulador_regras_fontes.py::test_preencher_para_frente PASSED [ 90%]
+tests/unit/test_simulador_regras_fontes.py::test_demonstracao_e_deterministica_e_tem_proventos_de_fii PASSED [ 90%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_le_fechamentos_ignora_vazios_e_le_proventos_na_data_ex PASSED [ 91%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_cripto_usa_endpoint_proprio_em_reais PASSED [ 92%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_escolhe_a_menor_faixa_que_cobre_o_periodo[10-1mo] PASSED [ 92%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_escolhe_a_menor_faixa_que_cobre_o_periodo[80-3mo] PASSED [ 93%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_escolhe_a_menor_faixa_que_cobre_o_periodo[300-1y] PASSED [ 94%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_escolhe_a_menor_faixa_que_cobre_o_periodo[700-2y] PASSED [ 94%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_escolhe_a_menor_faixa_que_cobre_o_periodo[1500-5y] PASSED [ 95%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_escolhe_a_menor_faixa_que_cobre_o_periodo[5000-max] PASSED [ 96%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_erros_viram_fonte_indisponivel[resposta0-BRAPI_TOKEN] PASSED [ 96%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_erros_viram_fonte_indisponivel[resposta1-limitou] PASSED [ 97%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_erros_viram_fonte_indisponivel[resposta2-n\xe3o encontrado] PASSED [ 98%]
+tests/unit/test_simulador_regras_fontes.py::test_brapi_erros_viram_fonte_indisponivel[resposta3-Sem dados] PASSED [ 98%]
+tests/unit/test_simulador_regras_fontes.py::test_banco_central_le_cdi PASSED [ 99%]
+tests/unit/test_simulador_regras_fontes.py::test_banco_central_fora_do_ar PASSED [100%]
+
+============================== warnings summary ===============================
+tests/e2e/test_frontend.py::test_login_valida_no_navegador_antes_de_enviar[chromium]
+  .\.venv\Lib\site-packages\_pytest\fixtures.py:1392: PytestRemovedIn10Warning: Session-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'base_url' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.14.10-final-0 _______________
+
+Name                               Stmts   Miss  Cover   Missing
+----------------------------------------------------------------
+app\__init__.py                       44      1    98%   67
+app\cli.py                            46     21    54%   25, 29-32, 40-42, 47-50, 58-67
+app\config.py                         32      2    94%   22, 24
+app\controllers\__init__.py            6      0   100%
+app\controllers\_helpers.py           28      2    93%   27, 37
+app\controllers\api.py                40      0   100%
+app\controllers\auth.py               58      2    97%   18, 42
+app\controllers\carteiras.py         155     11    93%   48, 143-152, 201
+app\controllers\erros.py              27      1    96%   29
+app\controllers\feedback.py           76      0   100%
+app\controllers\mercado.py            80      6    92%   107-112
+app\controllers\usuarios.py           53     28    47%   30-40, 45-56, 61-68
+app\extensions.py                      9      0   100%
+app\forms\__init__.py                 83      1    99%   57
+app\models\__init__.py                 5      0   100%
+app\models\carteira.py                39      0   100%
+app\models\feedback.py                34      0   100%
+app\models\mercado.py                 40      2    95%   33, 36
+app\models\usuario.py                 36      1    97%   55
+app\seed.py                           51      5    90%   101-103, 110, 123
+app\services\__init__.py               0      0   100%
+app\services\carteira_service.py      87      4    95%   64, 66, 85, 124
+app\services\excecoes.py               6      0   100%
+app\services\feedback_service.py      43      0   100%
+app\services\mercado_service.py      156      8    95%   31-34, 38, 45, 218-219
+app\services\usuario_service.py       41     23    44%   27-41, 45-54
+app\simulador\__init__.py              0      0   100%
+app\simulador\calculos.py            167      2    99%   166, 182
+app\simulador\fontes.py              150      8    95%   83-84, 96-97, 127, 155-156, 209
+app\simulador\regras.py               68      2    97%   72, 96
+app\utils\__init__.py                  0      0   100%
+app\utils\filtros.py                  49      8    84%   12, 19, 27, 33, 40, 52, 61, 70
+app\utils\tempo.py                    22      1    95%   45
+app\utils\validadores.py               5      0   100%
+----------------------------------------------------------------
+TOTAL                               1736    139    92%
+======================= 153 passed, 1 warning in 49.84s =======================

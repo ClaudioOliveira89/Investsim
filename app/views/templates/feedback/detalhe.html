@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block titulo %}Feedback de {{ feedback.nome_testador }}{% endblock %}
+{% block trilha %}
+  <a href="{{ url_for('carteiras.painel') }}">Painel</a>
+  <a href="{{ url_for('feedback.listar') }}">Feedbacks de teste</a>
+  <span>{{ feedback.nome_testador }}</span>
+{% endblock %}
+{% block conteudo %}
+{% set f = feedback %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1 class="titulo-pagina">{{ f.nome_testador }} <span class="selo selo--fb-{{ f.status | lower }}">{{ f.status_descricao }}</span></h1>
+    <p class="texto-suave">{{ f.perfil_testador or 'Testador' }} · testou em {{ f.data_teste | data_br }} · nota {{ f.nota }}/5</p>
+  </div>
+</div>
+
+<div class="grade grade--lateral">
+  <section class="cartao">
+    <h2 class="titulo-secao">Laudo</h2>
+    <dl class="lista-dados lista-dados--vertical">
+      <dt>✅ O que testou e funcionou</dt><dd class="texto-preformatado">{{ f.funcionou }}</dd>
+      <dt>❌ O que testou e não funcionou / deve ser corrigido</dt><dd class="texto-preformatado">{{ f.nao_funcionou or 'Nada relatado.' }}</dd>
+      <dt>⏸️ Funcionalidades não testadas</dt><dd class="texto-preformatado">{{ f.nao_testado or 'Nada relatado.' }}</dd>
+      <dt>💡 Sugestões</dt><dd class="texto-preformatado">{{ f.sugestoes or '—' }}</dd>
+      <dt>Contato</dt><dd>{{ f.email or '—' }}</dd>
+      <dt>Navegador</dt><dd><small class="texto-suave">{{ f.navegador or '—' }}</small></dd>
+    </dl>
+    {% if f.anexos %}
+    <h3 class="titulo-secao">Prints enviados</h3>
+    <div class="galeria">
+      {% for anexo in f.anexos %}
+      <a href="{{ url_for('feedback.anexo', anexo_id=anexo.id) }}" target="_blank" rel="noopener">
+        <img src="{{ url_for('feedback.anexo', anexo_id=anexo.id) }}" alt="Print enviado por {{ f.nome_testador }}: {{ anexo.nome_arquivo }}" loading="lazy">
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="cartao">
+    <h2 class="titulo-secao">Tratativa</h2>
+    <p class="texto-suave">Registre o que foi feito com este feedback. Isso alimenta o laudo de qualidade.</p>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ campo(form.status) }}
+      {{ campo(form.tratativa, rows=6, placeholder='Ex.: Bug confirmado. Corrigido no commit abc123: validação do telefone passou a aceitar fixo.') }}
+      <button type="submit" class="botao botao--primario">Salvar tratativa</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

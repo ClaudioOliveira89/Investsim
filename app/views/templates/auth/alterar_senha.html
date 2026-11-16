@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_macros.html" import campo %}
+{% block titulo %}Alterar senha{% endblock %}
+{% block trilha %}<a href="{{ url_for('carteiras.painel') }}">Painel</a><span>Alterar senha</span>{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <h1 class="titulo-pagina">Alterar minha senha</h1>
+</div>
+<div class="cartao cartao--estreito">
+  <form method="post" novalidate data-validar>
+    {{ form.hidden_tag() }}
+    {{ campo(form.senha_atual, autocomplete='current-password') }}
+    {{ campo(form.nova_senha, autocomplete='new-password', dica='Mínimo de 8 caracteres, com letras e números.', minlength=8) }}
+    {{ campo(form.confirmacao, autocomplete='new-password') }}
+    <div class="acoes-form">
+      <a class="botao botao--secundario" href="{{ url_for('carteiras.painel') }}">Cancelar</a>
+      <button type="submit" class="botao botao--primario">Salvar nova senha</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% from "_macros.html" import ticker, minigrafico, variacao, vazio %}
+{% set classe_atual = classe %}
+{% set nomes = {'ACAO': 'Ações', 'BDR': 'BDRs', 'FII': 'Fundos imobiliários', 'ETF': 'ETFs', 'CRIPTO': 'Criptoativos'} %}
+{% block titulo %}Mercado · {{ nomes[classe] }}{% endblock %}
+{% block trilha %}<a href="{{ url_for('mercado.index') }}">Mercado</a><span>{{ nomes[classe] }}</span>{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1 class="titulo-pagina">{{ nomes[classe] }}</h1>
+    <p class="texto-suave">Cotações, variações e gráficos rápidos. Selecione um ativo para abrir os detalhes e simular uma operação.</p>
+  </div>
+</div>
+{% set icones_classe = {'ACAO': 'i-acoes', 'BDR': 'i-bdr', 'FII': 'i-imoveis', 'ETF': 'i-indice', 'CRIPTO': 'i-cripto'} %}
+{% set descricoes_classe = {'ACAO': 'Empresas brasileiras', 'BDR': 'Empresas globais na B3', 'FII': 'Imóveis e recebíveis', 'ETF': 'Índices e setores', 'CRIPTO': 'Ativos digitais'} %}
+<nav class="abas abas--mercado" aria-label="Escolha uma classe de investimento">
+  {% for codigo, rotulo in [('ACAO', 'Ações'), ('BDR', 'BDRs'), ('FII', 'FIIs'), ('ETF', 'ETFs'), ('CRIPTO', 'Cripto')] %}
+  <a data-classe="{{ codigo }}" href="{{ url_for('mercado.index', classe=codigo) }}" {% if codigo == classe %}aria-current="page"{% endif %}>
+    <span class="terminal-categoria__icone"><svg class="icone" aria-hidden="true"><use href="#{{ icones_classe[codigo] }}"></use></svg></span>
+    <span class="terminal-categoria__texto"><strong>{{ rotulo }}</strong><small>{{ descricoes_classe[codigo] }}</small><small class="terminal-categoria__quantidade">{{ contagens.get(codigo, 0) }} ativos disponíveis</small></span>
+    <svg class="icone terminal-categoria__seta" aria-hidden="true"><use href="#i-seta-dir"></use></svg>
+  </a>
+  {% endfor %}
+</nav>
+
+{% if avisos %}
+<div class="alerta alerta--aviso" role="status">
+  <svg class="icone" aria-hidden="true"><use href="#i-aviso"></use></svg>
+  <div>
+    <p>Algumas cotações não puderam ser atualizadas:</p>
+    <ul>
+      {% for a in avisos[:6] %}<li>{{ a }}</li>{% endfor %}
+      {% if avisos | length > 6 %}<li>e mais {{ avisos | length - 6 }}…</li>{% endif %}
+    </ul>
+  </div>
+</div>
+{% endif %}
+
+<div class="cartao cartao--sem-padding">
+  {% if linhas %}
+  <div class="terminal-lista__topo">
+    <div class="terminal-lista__resumo">
+      <span class="terminal-lista__sinal"><svg class="icone" aria-hidden="true"><use href="#i-mercado"></use></svg></span>
+      <div><strong>Ativos do mercado</strong><small>Fechamento, desempenho e tendência</small></div>
+      <span class="terminal-lista__contagem" aria-live="polite"><b data-contagem-ativos>{{ linhas | length }}</b> ativos</span>
+    </div>
+    <label class="terminal-busca">
+      <svg class="icone" aria-hidden="true"><use href="#i-busca"></use></svg>
+      <span class="sr-only">Buscar ativo</span>
+      <input type="search" data-busca-ativos placeholder="Buscar ticker ou empresa" autocomplete="off">
+      <kbd>/</kbd>
+    </label>
+  </div>
+  <div class="tabela-rolagem">
+    <table class="tabela tabela--responsiva tabela--mercado" data-tabela-ativos>
+      <thead><tr>
+        <th scope="col">Ativo</th><th scope="col" class="dir">Último</th><th scope="col" class="dir">Dia</th>
+        <th scope="col" class="dir">12 meses</th><th scope="col" class="dir">3 meses</th><th scope="col" class="dir">Atualizado</th>
+      </tr></thead>
+      <tbody>
+        {% for l in linhas %}
+        <tr class="tabela__linha--clicavel" data-href="{{ url_for('mercado.ativo', ticker=l.ativo.ticker) }}"
+            data-filtro-ativo="{{ (l.ativo.ticker ~ ' ' ~ l.ativo.nome) | lower }}">
+          <td data-rotulo="Ativo">{{ ticker(l.ativo) }}</td>
+          {% if l.ultimo %}
+          <td data-rotulo="Último" class="dir">{{ l.ultimo | preco }}</td>
+          <td data-rotulo="Dia" class="dir">{{ variacao(l.var_dia) }}</td>
+          <td data-rotulo="12 meses" class="dir">{{ variacao(l.var_12m) }}</td>
+          <td data-rotulo="3 meses" class="dir">{{ minigrafico(l.minigrafico) }}</td>
+          <td data-rotulo="Atualizado" class="dir texto-suave">{{ l.data | data_br }}</td>
+          {% else %}
+          <td colspan="5" class="dir texto-suave">Cotação indisponível no momento</td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="terminal-lista__vazio" data-busca-vazia hidden>Nenhum ativo corresponde à busca.</p>
+  {% else %}
+    {{ vazio('Nenhum ativo desta classe no catálogo.', 'O administrador pode cadastrar ativos em Catálogo de ativos.') }}
+  {% endif %}
+</div>
+{% endblock %}

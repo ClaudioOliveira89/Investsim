@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="InvestSim — simule carteiras de investimento com preços reais e compare com o CDI.">
+  <title>{% block titulo %}{{ NOME_SISTEMA }}{% endblock %} · {{ NOME_SISTEMA }}</title>
+  <script>
+    // Aplica o tema salvo antes de desenhar a página (evita piscar).
+    (function () {
+      try { var t = localStorage.getItem("tema"); if (t === "claro" || t === "escuro") document.documentElement.dataset.tema = t; } catch (e) {}
+    })();
+  </script>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v='20261115-yahoo') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% include "_icones.html" %}
+  <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+  {% if MODO_DEMO %}
+  <div class="faixa-demo" role="note">
+    <svg class="icone" aria-hidden="true"><use href="#i-aviso"></use></svg>
+    Modo demonstração: cotações e CDI simulados. Configure BRAPI_TOKEN para usar dados reais de mercado.
+  </div>
+  {% endif %}
+
+  {% if not esconder_menu and current_user.is_authenticated %}
+  {% set ep = request.endpoint or '' %}
+  <div class="layout">
+    <aside class="menu-lateral" id="menu-lateral" aria-label="Menu principal">
+      <a class="marca" href="{{ url_for('carteiras.painel') }}">
+        <svg class="icone marca__icone" aria-hidden="true"><use href="#i-logo"></use></svg>
+        <span>Invest<strong>Sim</strong></span>
+      </a>
+      <nav>
+        <ul class="menu">
+          <li><a href="{{ url_for('carteiras.painel') }}" {% if ep.startswith('carteiras.') %}aria-current="page"{% endif %}>
+            <svg class="icone" aria-hidden="true"><use href="#i-carteira"></use></svg> Minhas carteiras</a></li>
+          <li class="menu__titulo">Mercado</li>
+          {% for codigo, rotulo, icone in [('ACAO', 'Ações', 'i-acoes'), ('BDR', 'BDRs', 'i-bdr'), ('FII', 'FIIs', 'i-imoveis'), ('ETF', 'ETFs', 'i-indice'), ('CRIPTO', 'Cripto', 'i-cripto')] %}
+          <li><a href="{{ url_for('mercado.index', classe=codigo) }}"
+                 {% if ep in ('mercado.index', 'mercado.ativo') and classe_atual == codigo %}aria-current="page"{% endif %}>
+            <svg class="icone" aria-hidden="true"><use href="#{{ icone }}"></use></svg> {{ rotulo }}</a></li>
+          {% endfor %}
+          {% if current_user.is_admin %}
+          <li class="menu__titulo">Administração</li>
+          <li><a href="{{ url_for('mercado.catalogo') }}" {% if ep in ('mercado.catalogo', 'mercado.novo_ativo', 'mercado.editar_ativo') %}aria-current="page"{% endif %}>
+            <svg class="icone" aria-hidden="true"><use href="#i-lista"></use></svg> Catálogo de ativos</a></li>
+          <li><a href="{{ url_for('usuarios.listar') }}" {% if ep.startswith('usuarios.') %}aria-current="page"{% endif %}>
+            <svg class="icone" aria-hidden="true"><use href="#i-escudo"></use></svg> Usuários</a></li>
+          <li><a href="{{ url_for('feedback.listar') }}" {% if ep.startswith('feedback.') %}aria-current="page"{% endif %}>
+            <svg class="icone" aria-hidden="true"><use href="#i-balao"></use></svg> Feedbacks de teste</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+      <div class="menu-lateral__rodape">
+        <a class="menu-lateral__link" href="{{ url_for('feedback.enviar') }}" target="_blank" rel="noopener">
+          <svg class="icone" aria-hidden="true"><use href="#i-inseto"></use></svg> Relatar problema
+        </a>
+      </div>
+    </aside>
+
+    <div class="principal">
+      <header class="topo">
+        <button class="botao-icone topo__menu" type="button" aria-controls="menu-lateral" aria-expanded="false" data-alternar-menu>
+          <svg class="icone" aria-hidden="true"><use href="#i-menu"></use></svg>
+          <span class="sr-only">Abrir menu</span>
+        </button>
+        <nav class="trilha" aria-label="Você está em">{% block trilha %}{% endblock %}</nav>
+        <div class="topo__acoes">
+          <button class="botao-icone" type="button" data-alternar-tema title="Alternar tema claro/escuro">
+            <svg class="icone" aria-hidden="true"><use href="#i-tema"></use></svg>
+            <span class="sr-only">Alternar tema claro/escuro</span>
+          </button>
+          <details class="menu-usuario">
+            <summary>
+              <span class="avatar" aria-hidden="true">{{ current_user.nome[:1] }}</span>
+              <span class="menu-usuario__nome">{{ current_user.nome.split()[0] }}<small>{{ current_user.perfil_descricao }}</small></span>
+            </summary>
+            <div class="menu-usuario__lista">
+              <a href="{{ url_for('auth.alterar_senha') }}">Alterar minha senha</a>
+              <form method="post" action="{{ url_for('auth.logout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit">Sair</button>
+              </form>
+            </div>
+          </details>
+        </div>
+      </header>
+
+      <main id="conteudo" class="conteudo" tabindex="-1">
+        {% include "_mensagens.html" %}
+        {% block conteudo %}{% endblock %}
+      </main>
+      <footer class="rodape">
+        {{ NOME_SISTEMA }} · simulador educacional — não é recomendação de investimento. Rentabilidade passada não garante rentabilidade futura.
+      </footer>
+    </div>
+  </div>
+  {% else %}
+  <main id="conteudo" class="conteudo conteudo--publico" tabindex="-1">
+    {% include "_mensagens.html" %}
+    {% block conteudo_publico %}{{ self.conteudo() }}{% endblock %}
+  </main>
+  {% endif %}
+
+  <dialog class="modal" id="modal-confirmacao" aria-labelledby="modal-titulo">
+    <form method="dialog">
+      <h2 id="modal-titulo" class="modal__titulo">Confirmar ação</h2>
+      <p class="modal__texto" data-modal-texto></p>
+      <div class="modal__acoes">
+        <button class="botao botao--secundario" value="cancelar">Voltar</button>
+        <button class="botao botao--perigo" value="confirmar" data-modal-confirmar>Confirmar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="{{ url_for('static', filename='js/app.js', v='20261115-yahoo') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

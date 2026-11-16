@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "_macros.html" import acao_post, selo_classe %}
+{% block titulo %}Catálogo de ativos{% endblock %}
+{% block trilha %}<span>Catálogo de ativos</span>{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1 class="titulo-pagina">Catálogo de ativos</h1>
+    <p class="texto-suave">Ativos disponíveis para os usuários simularem. Ocultar um ativo não altera as carteiras existentes.</p>
+  </div>
+  <a class="botao botao--primario" href="{{ url_for('mercado.novo_ativo') }}">
+    <svg class="icone" aria-hidden="true"><use href="#i-mais"></use></svg> Novo ativo</a>
+</div>
+<div class="cartao cartao--sem-padding">
+  <div class="tabela-rolagem">
+    <table class="tabela tabela--responsiva">
+      <thead><tr>
+        <th scope="col">Ticker</th><th scope="col">Nome</th><th scope="col">Classe</th>
+        <th scope="col">Símbolo na fonte</th><th scope="col">Situação</th><th scope="col" class="tabela__acoes">Ações</th>
+      </tr></thead>
+      <tbody>
+        {% for a in ativos %}
+        <tr class="{% if not a.ativo %}tabela__linha--inativa{% endif %}">
+          <td data-rotulo="Ticker"><a class="ticker__codigo" href="{{ url_for('mercado.ativo', ticker=a.ticker) }}">{{ a.ticker }}</a></td>
+          <td data-rotulo="Nome">{{ a.nome }}</td>
+          <td data-rotulo="Classe">{{ selo_classe(a.classe) }}</td>
+          <td data-rotulo="Símbolo"><code>{{ a.simbolo_fonte }}</code></td>
+          <td data-rotulo="Situação"><span class="selo {{ 'selo--ativo' if a.ativo else 'selo--inativo' }}">{{ 'Disponível' if a.ativo else 'Oculto' }}</span></td>
+          <td class="tabela__acoes">
+            <a class="botao botao--texto botao--pequeno" href="{{ url_for('mercado.editar_ativo', ativo_id=a.id) }}">
+              <svg class="icone" aria-hidden="true"><use href="#i-editar"></use></svg> Editar</a>
+            {{ acao_post(url_for('mercado.alternar_ativo', ativo_id=a.id), 'Ocultar' if a.ativo else 'Exibir', estilo='texto') }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
