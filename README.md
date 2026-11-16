@@ -6,7 +6,7 @@ rentabilidade pelo método de cotas, % do CDI, quanto o mesmo dinheiro teria ren
 proventos recebidos, volatilidade, maior queda e o desempenho mês a mês.
 
 Projeto Integrador Transdisciplinar em Engenharia de Software II — Cruzeiro do Sul Virtual.
-Experimento para futura integração ao SaaS da Hadar Data Capital.
+Experimento para futura integração.
 
 > Simulador educacional: não movimenta dinheiro real e não é recomendação de investimento.
 
