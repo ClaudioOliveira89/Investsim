@@ -215,7 +215,16 @@ def resumo(ativos: list[Ativo]) -> tuple[list[dict], list[str]]:
         serie = series.get(ativo.ticker) or {}
         datas = sorted(serie)
         if not datas:
-            linhas.append({"ativo": ativo, "ultimo": None})
+            # Mantém o mesmo formato da linha com cotação. A página do ativo usa
+            # var_12m para estilizar o KPI mesmo quando ultimo é None.
+            linhas.append({
+                "ativo": ativo,
+                "ultimo": None,
+                "data": None,
+                "var_dia": None,
+                "var_12m": None,
+                "minigrafico": [],
+            })
             continue
         ultimo_dia = datas[-1]
         ultimo = serie[ultimo_dia]
