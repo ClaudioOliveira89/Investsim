@@ -40,7 +40,7 @@ Experimento para futura integração.
 | Volatilidade / maior queda | Desvio-padrão anualizado dos retornos diários / *drawdown* máximo das cotas |
 
 Esses cálculos ficam em **`app/simulador/`, em Python puro e sem dependência de framework**, prontos
-para serem importados pelo Django da Hadar.
+para serem importados pelo Django.
 
 ## Dados de mercado
 
@@ -74,9 +74,10 @@ Copy-Item .env.example .env          # defina SECRET_KEY e DEMO_PASSWORD; BRAPI_
 python wsgi.py                       # cria o banco, carrega a demonstração e abre em http://127.0.0.1:5000
 ```
 
-No primeiro seed, o sistema cria `investidor@investsim.com.br` e `admin@investsim.com.br` usando a
-senha definida por você em `DEMO_PASSWORD`. Troque a senha administrativa depois do primeiro acesso,
-ou crie sua própria conta em **Criar conta**.
+Na primeira inicialização, o sistema cria as contas de demonstração investidor@investsim.com.br e admin@investsim.com.br com a senha definida em DEMO_PASSWORD no ambiente do serviço. 
+Configure essa variável no Render e não publique seu valor. 
+Após entrar como administrador, altere a senha. 
+Os demais usuários podem criar uma conta em Criar conta.
 
 Para usar o **PostgreSQL** local:
 
@@ -120,4 +121,4 @@ apagar dados.
 
 ## Autor
 
-**Seu nome** · RGM · Engenharia de Software — Cruzeiro do Sul Virtual
+**Claudio Henrique De Oliveira Soares** · RGM · Engenharia de Software — Cruzeiro do Sul Virtual
