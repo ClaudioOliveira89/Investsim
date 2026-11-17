@@ -66,7 +66,8 @@ def registrar_operacao(
         raise RegraNegocioError("Escolha compra ou venda.", campo="tipo")
     dia: date = dados["data"]
     if dia > hoje():
-        raise RegraNegocioError("A data não pode estar no futuro: o simulador usa preços reais já negociados.", campo="data")
+        if not dados.get("preco"):
+            raise RegraNegocioError("Informe manualmente o preço projetado para uma operação futura.", campo="preco")
 
     preco = dados.get("preco")
     if preco:
@@ -122,17 +123,25 @@ def relatorio(carteira: Carteira, fim: date | None = None) -> tuple[Resultado, l
     operacoes = carteira.operacoes
     if not operacoes:
         return Resultado(), []
-    fim = fim or hoje()
+    hoje_atual = hoje()
+    fim = fim or max(hoje_atual, max(op.data for op in operacoes))
     inicio = min(op.data for op in operacoes)
+    inicio_dados = min(inicio, hoje_atual)
     ativos = list({op.ativo.id: op.ativo for op in operacoes}.values())
 
-    avisos = mercado_service.sincronizar_ativos(ativos, inicio)
-    avisos += mercado_service.sincronizar_cdi(inicio)
+    avisos = mercado_service.sincronizar_ativos(ativos, inicio_dados)
+    avisos += mercado_service.sincronizar_cdi(inicio_dados)
+    if fim > hoje_atual:
+        avisos.append(
+            "Projeção até "
+            f"{fim:%d/%m/%Y}: operações futuras usam o preço manual informado e as demais cotações "
+            "ficam no último fechamento disponível; o CDI não acumula após o último dado publicado."
+        )
     resultado = simular(
         carteira.movimentos(),
-        mercado_service.precos(ativos, inicio),
-        mercado_service.proventos(ativos, inicio),
-        mercado_service.cdi(inicio),
+        mercado_service.precos(ativos, inicio_dados),
+        mercado_service.proventos(ativos, inicio_dados),
+        mercado_service.cdi(inicio_dados),
         fim,
     )
     return resultado, avisos

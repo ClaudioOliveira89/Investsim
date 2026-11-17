@@ -16,6 +16,7 @@
     <h1>{{ carteira.nome }}</h1>
     <p>{{ carteira.usuario.nome }} · gerado em {{ gerado_em | data_br }}{% if i %} · período de {{ i.inicio | data_br }} a {{ i.fim | data_br }}{% endif %}</p>
     {% if MODO_DEMO %}<p><strong>Atenção:</strong> dados de mercado simulados (modo demonstração).</p>{% endif %}
+    {% if avisos %}<p><strong>Aviso:</strong> {{ avisos | join(' ') }}</p>{% endif %}
   </header>
 
   {% if r.vazio %}

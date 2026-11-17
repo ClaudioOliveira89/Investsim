@@ -27,6 +27,10 @@ def nome_fonte() -> str:
     return "demo" if current_app.config.get("FONTE_DADOS") == "demo" else "brapi"
 
 
+def nome_fonte_cdi() -> str:
+    return "demo" if current_app.config.get("FONTE_CDI", "bcb") == "demo" else "bcb"
+
+
 def _cliente_brapi() -> Brapi:
     token = current_app.config.get("BRAPI_TOKEN") or ""
     if token not in _brapi:
@@ -50,12 +54,13 @@ def _baixar_cdi(fonte: str, inicio: date, fim: date) -> dict[date, float]:
 
 
 # --------------------------------------------------------------------------- controle do cache
-def _janela_para_baixar(chave: str, inicio: date, fonte: str) -> date | None:
+def _janela_para_baixar(chave: str, inicio: date, fonte: str, validade_min: int | None = None) -> date | None:
     """Data a partir da qual é preciso baixar, ou None se o cache já atende."""
     sync = db.session.get(Sincronizacao, chave)
     if sync is None or sync.fonte != fonte or inicio < sync.desde:
         return inicio
-    validade = timedelta(minutes=current_app.config["COTACAO_VALIDADE_MIN"])
+    minutos = validade_min if validade_min is not None else current_app.config["COTACAO_VALIDADE_MIN"]
+    validade = timedelta(minutes=minutos)
     if agora() - sync.atualizado_em > validade and sync.ate <= hoje():
         return max(sync.desde, sync.ate - timedelta(days=7))
     return None
@@ -125,8 +130,8 @@ def sincronizar_ativos(ativos: list[Ativo], inicio: date) -> list[str]:
 
 
 def sincronizar_cdi(inicio: date) -> list[str]:
-    fonte = nome_fonte()
-    desde = _janela_para_baixar("cdi", inicio, fonte)
+    fonte = nome_fonte_cdi()
+    desde = _janela_para_baixar("cdi", inicio, fonte, current_app.config["CDI_VALIDADE_MIN"])
     if desde is None:
         return []
     try:

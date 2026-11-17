@@ -19,7 +19,7 @@
 {% if avisos %}
 <div class="alerta alerta--aviso" role="status">
   <svg class="icone" aria-hidden="true"><use href="#i-aviso"></use></svg>
-  <div><p>Alguns dados de mercado não puderam ser atualizados:</p><ul>{% for a in avisos %}<li>{{ a }}</li>{% endfor %}</ul></div>
+  <div><p>Avisos sobre dados e projeções:</p><ul>{% for a in avisos %}<li>{{ a }}</li>{% endfor %}</ul></div>
 </div>
 {% endif %}
 

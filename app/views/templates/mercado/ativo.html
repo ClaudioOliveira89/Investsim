@@ -4,8 +4,8 @@
 {% set classe_atual = classe_terminal %}
 {% block titulo %}{{ ativo.ticker }}{% endblock %}
 {% block trilha %}
-  <a href="{{ url_for('mercado.index', classe=classe_terminal) }}">Mercado</a>
-  <a href="{{ url_for('mercado.index', classe=classe_terminal) }}">{{ 'BDRs' if ativo.is_bdr else (ativo.classe | classe_ativo) }}</a>
+  <a href="{{ url_for('mercado.index', classe=classe_terminal, carteira_id=carteira_id) }}">Mercado</a>
+  <a href="{{ url_for('mercado.index', classe=classe_terminal, carteira_id=carteira_id) }}">{{ 'BDRs' if ativo.is_bdr else (ativo.classe | classe_ativo) }}</a>
   <span>{{ ativo.ticker }}</span>
 {% endblock %}
 {% block conteudo %}
@@ -28,7 +28,7 @@
       <label class="sr-only" for="carteira-destino">Carteira de destino</label>
       <select id="carteira-destino" class="campo__controle campo__controle--compacto" data-carteira-destino>
         {% for c in carteiras %}
-        <option value="{{ url_for('carteiras.nova_operacao', carteira_id=c.id, ativo_id=ativo.id) }}">{{ c.nome }}</option>
+        <option value="{{ url_for('carteiras.nova_operacao', carteira_id=c.id, ativo_id=ativo.id) }}" {% if c.id == carteira_id %}selected{% endif %}>{{ c.nome }}</option>
         {% endfor %}
       </select>
       <button type="submit" class="botao botao--primario">

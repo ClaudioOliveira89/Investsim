@@ -21,6 +21,7 @@
   };
   const modo = () => (form.querySelector('[name="modo"]:checked') || {}).value || "VALOR";
   const dataBR = (iso) => iso.split("-").reverse().join("/");
+  const dataFutura = () => campo("data").value && campo("data").value > form.dataset.hoje;
 
   function alternarModo() {
     form.querySelectorAll("[data-campo-modo]").forEach((input) => {
@@ -36,6 +37,12 @@
   }
 
   function atualizar() {
+    if (dataFutura()) {
+      const manual = num("preco");
+      ui.rotulo.textContent = "Preço projetado";
+      ui.preco.textContent = manual ? moeda.format(manual) : "Informe o preço manual";
+      ui.info.textContent = "Não há cotação futura. Informe o preço projetado manualmente.";
+    }
     const preco = precoEfetivo();
     const taxas = num("taxas") || 0;
     ui.taxas.textContent = taxas ? moeda.format(taxas) : "—";
@@ -67,13 +74,21 @@
     const ativo = campo("ativo_id").value;
     const data = campo("data").value;
     cotacao = null;
+    if (dataFutura()) {
+      const precoManual = form.querySelector("details");
+      if (precoManual) precoManual.open = true;
+      atualizar();
+      return;
+    }
     if (!Number(ativo) || !data) {
       ui.preco.textContent = "—";
+      ui.rotulo.textContent = "Cotação";
       ui.info.textContent = "Escolha o ativo e a data.";
       atualizar();
       return;
     }
     const minha = (requisicao = Symbol());
+    ui.rotulo.textContent = "Cotação";
     ui.preco.textContent = "…";
     ui.info.textContent = "Buscando a cotação do dia";
     ui.info.classList.add("carregando");

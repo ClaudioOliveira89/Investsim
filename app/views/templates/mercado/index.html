@@ -15,7 +15,7 @@
 {% set descricoes_classe = {'ACAO': 'Empresas brasileiras', 'BDR': 'Empresas globais na B3', 'FII': 'Imóveis e recebíveis', 'ETF': 'Índices e setores', 'CRIPTO': 'Ativos digitais'} %}
 <nav class="abas abas--mercado" aria-label="Escolha uma classe de investimento">
   {% for codigo, rotulo in [('ACAO', 'Ações'), ('BDR', 'BDRs'), ('FII', 'FIIs'), ('ETF', 'ETFs'), ('CRIPTO', 'Cripto')] %}
-  <a data-classe="{{ codigo }}" href="{{ url_for('mercado.index', classe=codigo) }}" {% if codigo == classe %}aria-current="page"{% endif %}>
+  <a data-classe="{{ codigo }}" href="{{ url_for('mercado.index', classe=codigo, carteira_id=carteira_id) }}" {% if codigo == classe %}aria-current="page"{% endif %}>
     <span class="terminal-categoria__icone"><svg class="icone" aria-hidden="true"><use href="#{{ icones_classe[codigo] }}"></use></svg></span>
     <span class="terminal-categoria__texto"><strong>{{ rotulo }}</strong><small>{{ descricoes_classe[codigo] }}</small><small class="terminal-categoria__quantidade">{{ contagens.get(codigo, 0) }} ativos disponíveis</small></span>
     <svg class="icone terminal-categoria__seta" aria-hidden="true"><use href="#i-seta-dir"></use></svg>
@@ -59,7 +59,7 @@
       </tr></thead>
       <tbody>
         {% for l in linhas %}
-        <tr class="tabela__linha--clicavel" data-href="{{ url_for('mercado.ativo', ticker=l.ativo.ticker) }}"
+        <tr class="tabela__linha--clicavel" data-href="{{ url_for('mercado.ativo', ticker=l.ativo.ticker, carteira_id=carteira_id) }}"
             data-filtro-ativo="{{ (l.ativo.ticker ~ ' ' ~ l.ativo.nome) | lower }}">
           <td data-rotulo="Ativo">{{ ticker(l.ativo) }}</td>
           {% if l.ultimo %}

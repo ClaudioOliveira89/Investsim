@@ -8,7 +8,7 @@ from sqlalchemy import func, select
 from app.controllers._helpers import admin_obrigatorio, aplicar_erro, obter_ou_404
 from app.extensions import db
 from app.forms import AtivoForm
-from app.models import Ativo, Cotacao, Provento
+from app.models import Ativo, Carteira, Cotacao, Provento
 from app.services import mercado_service
 from app.services.excecoes import RegraNegocioError
 from app.simulador.regras import CLASSES
@@ -28,6 +28,11 @@ def index():
     classe = request.args.get("classe", "ACAO")
     if classe not in (*CLASSES, "BDR"):
         classe = "ACAO"
+    carteira_id = request.args.get("carteira_id", type=int)
+    if carteira_id:
+        carteira = db.session.get(Carteira, carteira_id)
+        if carteira is None or carteira.usuario_id != current_user.id:
+            abort(404)
     contagens = dict(db.session.execute(
         select(Ativo.classe, func.count(Ativo.id))
         .where(Ativo.ativo.is_(True))
@@ -48,7 +53,10 @@ def index():
             select(Ativo).where(Ativo.classe == classe, Ativo.ativo.is_(True)).order_by(Ativo.ticker)
         ).all()
     linhas, avisos = mercado_service.resumo(ativos)
-    return render_template("mercado/index.html", classe=classe, linhas=linhas, avisos=avisos, contagens=contagens)
+    return render_template(
+        "mercado/index.html", classe=classe, linhas=linhas, avisos=avisos,
+        contagens=contagens, carteira_id=carteira_id,
+    )
 
 
 @bp.route("/<ticker>")
@@ -56,6 +64,11 @@ def ativo(ticker):
     ativo = db.session.scalar(select(Ativo).where(Ativo.ticker == ticker.upper()))
     if ativo is None:
         abort(404)
+    carteira_id = request.args.get("carteira_id", type=int)
+    if carteira_id:
+        carteira = db.session.get(Carteira, carteira_id)
+        if carteira is None or carteira.usuario_id != current_user.id:
+            abort(404)
     (linha,), avisos = mercado_service.resumo([ativo])
     um_ano = hoje() - timedelta(days=365)
     minimo, maximo = db.session.execute(
@@ -76,6 +89,7 @@ def ativo(ticker):
         proventos_12m=float(proventos_12m or 0),
         dividend_yield=float(proventos_12m) / ultimo * 100 if ultimo and proventos_12m else None,
         carteiras=current_user.carteiras,
+        carteira_id=carteira_id,
         avisos=avisos,
     )
 

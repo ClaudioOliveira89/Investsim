@@ -33,3 +33,8 @@ services:
       # Token gratuito de https://brapi.dev (cotações reais). Sem ele, o sistema roda em modo demonstração.
       - key: BRAPI_TOKEN
         sync: false
+      # CDI diário oficial do Banco Central, independente do token da brapi.
+      - key: FONTE_CDI
+        value: bcb
+      - key: CDI_VALIDADE_MIN
+        value: "15"

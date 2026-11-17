@@ -56,8 +56,13 @@ class Config:
     # Sem FONTE_DADOS definido: usa "brapi" se houver BRAPI_TOKEN, senão "demo".
     BRAPI_TOKEN = os.environ.get("BRAPI_TOKEN", "").strip()
     FONTE_DADOS = (os.environ.get("FONTE_DADOS") or ("brapi" if BRAPI_TOKEN else "demo")).strip().lower()
+    # O CDI tem configuração própria: não depende de a brapi estar habilitada.
+    # Em modo demo local, mantém o CDI sintético para permitir uso offline.
+    FONTE_CDI = os.environ.get("FONTE_CDI", "demo" if FONTE_DADOS == "demo" else "bcb").strip().lower()
     # Por quantos minutos as cotações salvas valem antes de buscar de novo
     COTACAO_VALIDADE_MIN = int(os.environ.get("COTACAO_VALIDADE_MIN", "60"))
+    # A série oficial do CDI é diária; este prazo só limita consultas repetidas ao SGS.
+    CDI_VALIDADE_MIN = int(os.environ.get("CDI_VALIDADE_MIN", "15"))
 
     ITENS_POR_PAGINA = 10
 
@@ -70,3 +75,4 @@ class TestConfig(Config):
     SQLALCHEMY_ENGINE_OPTIONS = {}
     WTF_CSRF_ENABLED = False
     FONTE_DADOS = "demo"  # testes nunca acessam a internet
+    FONTE_CDI = "demo"

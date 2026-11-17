@@ -53,6 +53,10 @@ para serem importados pelo Django.
 Sem `BRAPI_TOKEN`, o sistema entra automaticamente em **modo demonstração**, com uma faixa de aviso
 na tela. As cotações ficam em cache no banco: só é baixado o que falta ou está vencido, e, se a fonte
 cair, o sistema segue com os últimos dados salvos e avisa o usuário.
+No Render, o CDI usa a série diária oficial do Banco Central independentemente do token da brapi.
+Em desenvolvimento, `FONTE_CDI` acompanha `FONTE_DADOS` por padrão; configure `FONTE_CDI=bcb` para
+usar o CDI oficial ou `FONTE_CDI=demo` para usar o CDI sintético offline. O cache do CDI é controlado
+por `CDI_VALIDADE_MIN` (15 minutos por padrão).
 
 ## Tecnologias
 

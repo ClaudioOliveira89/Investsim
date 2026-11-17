@@ -220,7 +220,10 @@ def nova_operacao(carteira_id):
         resposta = _salvar_operacao(carteira, form, None)
         if resposta:
             return resposta
-    return render_template("operacoes/form.html", form=form, grupos=grupos, carteira=carteira, operacao=None)
+    return render_template(
+        "operacoes/form.html", form=form, grupos=grupos, carteira=carteira, operacao=None,
+        ativo_selecionado=db.session.get(Ativo, form.ativo_id.data or 0),
+    )
 
 
 @bp.route("/operacoes/<int:operacao_id>/editar", methods=["GET", "POST"])
@@ -234,7 +237,8 @@ def editar_operacao(operacao_id):
         if resposta:
             return resposta
     return render_template(
-        "operacoes/form.html", form=form, grupos=grupos, carteira=operacao.carteira, operacao=operacao
+        "operacoes/form.html", form=form, grupos=grupos, carteira=operacao.carteira,
+        operacao=operacao, ativo_selecionado=operacao.ativo,
     )
 
 
