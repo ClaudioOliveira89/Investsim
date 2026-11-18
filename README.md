@@ -18,11 +18,18 @@ Experimento para futura integração.
 - **Operações com preço real**: compra ou venda numa data passada, informando **valor em R$** (a
   quantidade é calculada) ou quantidade. O preço é o fechamento do dia (ou do último pregão).
 - **Regras de mercado**: ações, BDRs, FIIs e ETFs em unidades inteiras; cripto com até 8 casas; venda nunca
-  excede a posição (em nenhum momento do histórico); sem datas futuras.
+  excede a posição (em nenhum momento do histórico); datas futuras viram projeções e exigem preço manual.
+- **Atalhos de data**: botão de calendário e atalhos (hoje, 1 mês, 6 meses, 1 ano, 5 anos) para registrar
+  operações retroativas sem digitar a data inteira.
+- **Resumo da operação**: ao informar valor em R$, mostra a quantidade inteira possível, a **sobra não usada**,
+  as taxas e o total; vendas usam o fechamento da data da venda.
+- **Minhas movimentações**: tela única com todas as operações de todas as carteiras, com busca por ativo ou
+  observação, filtros por carteira, tipo e período, e paginação. As operações de cada carteira também são paginadas.
+- **Conta**: alterar senha e **excluir a própria conta** (pede senha e confirmação; apaga carteiras e operações).
 - **Relatório × CDI**: veredito, KPIs, gráfico de rentabilidade e de patrimônio contra o CDI, posições
   com preço médio e resultado, alocação por classe, tabela mês a mês, extrato, **PDF** e **CSV**.
 - **Terminal de mercado**: categorias separadas de ações, BDRs, FIIs, ETFs e cripto com contagem de ativos e ícones; listas com variação do dia/12 meses e minigráfico; página do
-  ativo com histórico (1M a 5A), proventos e *dividend yield*, e botão "Simular compra".
+  ativo com histórico (1M a 5A, com os indicadores acompanhando o período), proventos e *dividend yield*, e botão "Simular compra".
 - **Cadastro público** (para testadores), perfis investidor/administrador, catálogo de ativos,
   formulário de laudo de teste com prints.
 - Tema **escuro/claro**, responsivo (celular) e acessível (teclado, leitores de tela).
@@ -66,7 +73,7 @@ por `CDI_VALIDADE_MIN` (15 minutos por padrão).
 | Banco | **PostgreSQL** (domínios, CHECKs, FKs, visões) via SQLAlchemy 2 + psycopg 3; SQLite para desenvolvimento |
 | Front-end | HTML5, CSS3 e JavaScript puros + Chart.js (local, MIT) |
 | Segurança | Flask-Login, hash de senha, CSRF, isolamento de carteiras por usuário, cabeçalhos de segurança |
-| Testes | pytest (unidade, integração, PostgreSQL) + Playwright (E2E) — 153 testes, 92% de cobertura |
+| Testes | pytest (unidade, integração, PostgreSQL) + Playwright (E2E); evidências em `docs/evidencias/` |
 | CI / Deploy | GitHub Actions · Render (gunicorn) |
 
 ## Como rodar
@@ -116,6 +123,22 @@ docs/            telas, dicionário de dados, evidências de teste (legado-agend
 tests/           unit · integration · e2e
 scripts/         capturas de tela, dicionário de dados, evidências
 ```
+
+## Melhorias após testes com usuários
+
+Rodada de testes com 5 colegas (16 e 17/11/2026). Ajustes feitos a partir dos feedbacks:
+
+| Feedback | Ajuste |
+|---|---|
+| Calendário do Firefox difícil de usar | Botão de calendário e atalhos de data |
+| Cards do ativo ficavam em 1A ao escolher 5A | Indicadores acompanham o período selecionado |
+| Total da compra por valor não batia com o valor informado | Resumo com sobra, taxas e total + mensagem explicativa |
+| Venda sem posição por valor não mostrava erro | Mensagem clara no campo correto |
+| Listas longas e pesadas | Paginação nas operações e nova tela de movimentações com busca |
+| Impossível excluir a conta | Exclusão com senha e confirmação |
+
+Fora do escopo desta versão (backlog): confirmação de e-mail por token no cadastro e importação de operações
+em lote (CSV).
 
 ## Publicação (Render)
 
