@@ -88,3 +88,17 @@ def test_unico_admin_nao_exclui_a_propria_conta(client, db, admin):
     r = client.post("/minha-conta/excluir", data={"senha": "Senha123", "confirmacao": "EXCLUIR"})
     assert "único administrador" in r.get_data(as_text=True)
     assert db.session.get(Usuario, admin.id) is not None
+
+
+# --- Venda alcançável pela interface (qualquer perfil)
+def test_posicao_tem_botao_vender_e_formulario_abre_como_venda(logado_investidor, carteira, ativos, dias_atras):
+    _operar(carteira, ativos["PETR4"], dias_atras(30), quantidade=10)
+    html = logado_investidor.get(f"/carteiras/{carteira.id}").get_data(as_text=True)
+    link = f"/carteiras/{carteira.id}/operacoes/nova?ativo_id={ativos['PETR4'].id}&amp;tipo=VENDA"
+    assert link in html
+    form = logado_investidor.get(link.replace("&amp;", "&")).get_data(as_text=True)
+    assert '<input checked id="tipo-1" name="tipo" required type="radio" value="VENDA">' in form
+
+
+def test_pagina_do_ativo_tem_simular_venda(logado_investidor, carteira, ativos):
+    assert "Simular venda" in logado_investidor.get("/mercado/PETR4").get_data(as_text=True)

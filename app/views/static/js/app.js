@@ -251,6 +251,13 @@
         if (destino && destino.value) window.location.href = destino.value;
       })
     );
+    // "Simular venda": mesmo destino, com o tipo de operação já marcado como venda.
+    document.querySelectorAll("[data-simular-venda]").forEach((botao) =>
+      botao.addEventListener("click", () => {
+        const destino = botao.closest("form").querySelector("[data-carteira-destino]");
+        if (destino && destino.value) window.location.href = `${destino.value}&tipo=VENDA`;
+      })
+    );
   }
 
   function ativarSugestoesCarteira() {

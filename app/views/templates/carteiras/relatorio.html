@@ -87,7 +87,7 @@
       <thead><tr>
         <th scope="col">Ativo</th><th scope="col" class="dir">Qtd.</th><th scope="col" class="dir">Preço médio</th>
         <th scope="col" class="dir">Cotação</th><th scope="col" class="dir">Valor</th><th scope="col" class="dir">Resultado</th>
-        <th scope="col" class="dir">Proventos</th><th scope="col">Peso</th>
+        <th scope="col" class="dir">Proventos</th><th scope="col">Peso</th><th scope="col" class="tabela__acoes">Ação</th>
       </tr></thead>
       <tbody>
         {% for p in r.posicoes %}
@@ -103,11 +103,17 @@
           </td>
           <td data-rotulo="Proventos" class="dir">{{ p.proventos | moeda if p.proventos else '—' }}</td>
           <td data-rotulo="Peso"><div class="barra-peso" title="{{ p.peso | numero(1) }}%"><span style="width: {{ [p.peso, 100] | min }}%"></span></div><small class="num">{{ p.peso | numero(1) }}%</small></td>
+          <td class="tabela__acoes">
+            {% if p.quantidade > 0 and ativo_ids.get(p.ticker) %}
+            <a class="botao botao--secundario botao--pequeno"
+               href="{{ url_for('carteiras.nova_operacao', carteira_id=carteira.id, ativo_id=ativo_ids[p.ticker], tipo='VENDA') }}">Vender</a>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
       {% if i.caixa > 0.005 %}
-      <tfoot><tr><td colspan="4">Proventos em caixa</td><td class="dir">{{ i.caixa | moeda }}</td><td colspan="3"></td></tr></tfoot>
+      <tfoot><tr><td colspan="4">Proventos em caixa</td><td class="dir">{{ i.caixa | moeda }}</td><td colspan="4"></td></tr></tfoot>
       {% endif %}
     </table>
   </div>

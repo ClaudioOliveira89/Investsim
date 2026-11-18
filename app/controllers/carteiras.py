@@ -105,6 +105,7 @@ def detalhe(carteira_id):
             per_page=ITENS_POR_PAGINA_OPERACOES, error_out=False,
         ),
         total_operacoes=len(carteira.operacoes),
+        ativo_ids={op.ativo.ticker: op.ativo_id for op in carteira.operacoes},
         avisos=avisos,
         modo_impressao=False,
     )

@@ -33,6 +33,7 @@
       </select>
       <button type="submit" class="botao botao--primario">
         <svg class="icone" aria-hidden="true"><use href="#i-compra"></use></svg> Simular compra</button>
+      <button type="button" class="botao botao--secundario" data-simular-venda>Simular venda</button>
     </form>
     {% else %}
     <a class="botao botao--primario" href="{{ url_for('carteiras.nova') }}">Criar carteira para simular</a>
