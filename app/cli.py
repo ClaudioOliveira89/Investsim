@@ -43,7 +43,7 @@ def registrar_comandos(app):
 
     @app.cli.command("seed")
     def seed():
-        """Carrega dados de demonstração (usuários, serviços, profissionais, clientes, agenda)."""
+        """Carrega dados de demonstração (contas, catálogo de ativos e carteira de exemplo)."""
         from app.seed import carregar_dados_demo
 
         resumo = carregar_dados_demo()

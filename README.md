@@ -119,7 +119,7 @@ app/
   forms/         validação de entrada + CSRF
   views/         View: templates, CSS, JavaScript e Chart.js
 database/        schema.sql (projeto físico) e criação do banco
-docs/            telas, dicionário de dados, evidências de teste (legado-agendafacil/ = versão anterior)
+docs/            telas, dicionário de dados, evidências de teste
 tests/           unit · integration · e2e
 scripts/         capturas de tela, dicionário de dados, evidências
 ```

@@ -15,10 +15,10 @@ LAUDO = {
     "email": "paulo@email.com",
     "perfil_testador": "Colega de curso",
     "data_teste": "2026-11-20",
-    "funcionou": "Login, cadastro de cliente e agendamento funcionaram.",
+    "funcionou": "Login, criação de carteira e compra de ativos funcionaram.",
     "nao_funcionou": "Ao filtrar por data sem 'até', esperava ver só um dia.",
     "nao_testado": "Área de administrador.",
-    "sugestoes": "Mostrar o telefone do cliente na agenda.",
+    "sugestoes": "Mostrar o preço médio na lista de posições.",
     "nota": "4",
 }
 

@@ -562,3 +562,6 @@ fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 
 /* Atalhos de data do formulário de operação */
 .atalhos-data { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+
+/* Tabela de posições: colunas mais juntas para caber a ação Vender sem rolagem */
+.tabela--compacta th, .tabela--compacta td { padding-left: 9px; padding-right: 9px; }

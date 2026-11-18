@@ -30,7 +30,7 @@ DADOS = {
     "email": "CARLA@EMAIL.COM",
     "perfil_testador": "Colega de curso",
     "data_teste": date(2026, 11, 20),
-    "funcionou": "Cadastro de cliente e agendamento.",
+    "funcionou": "Criação de carteira e compra de ativos.",
     "nao_funcionou": "",
     "nao_testado": "Área administrativa",
     "sugestoes": None,

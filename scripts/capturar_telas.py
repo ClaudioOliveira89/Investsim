@@ -17,8 +17,11 @@ from werkzeug.serving import make_server  # noqa: E402
 
 from app import create_app  # noqa: E402
 from app.config import TestConfig  # noqa: E402
+
+SENHA_DEMO = TestConfig.DEMO_PASSWORD
 from app.extensions import db  # noqa: E402
-from app.seed import SENHA_DEMO, carregar_dados_demo  # noqa: E402
+from app.models import Ativo  # noqa: E402
+from app.seed import carregar_dados_demo  # noqa: E402
 from app.utils.tempo import hoje  # noqa: E402
 
 DESTINO = Path(sys.argv[1] if len(sys.argv) > 1 else "docs/telas")
@@ -80,8 +83,9 @@ def main():
         pagina.goto(carteira_url + "/imprimir")
         foto(pagina, "06-relatorio-pdf")
 
-        pagina.goto(carteira_url + "/operacoes/nova")
-        pagina.select_option("#ativo_id", label="KNRI11 — Kinea Renda Imobiliária")
+        with app.app_context():
+            ids = {t: db.session.scalar(db.select(Ativo.id).where(Ativo.ticker == t)) for t in ("KNRI11", "WEGE3")}
+        pagina.goto(f"{carteira_url}/operacoes/nova?ativo_id={ids['KNRI11']}")
         dia = hoje() - timedelta(days=90)
         while dia.weekday() >= 5:
             dia -= timedelta(days=1)
@@ -91,7 +95,7 @@ def main():
         pagina.wait_for_timeout(600)
         foto(pagina, "07-nova-operacao", False)
 
-        pagina.select_option("#ativo_id", label="WEGE3 — WEG ON")
+        pagina.goto(f"{carteira_url}/operacoes/nova?ativo_id={ids['WEGE3']}&tipo=VENDA")
         pagina.locator(".segmentado label", has_text="Venda").click()
         pagina.locator(".segmentado label", has_text="Quantidade").click()
         pagina.fill("#quantidade", "99999")
