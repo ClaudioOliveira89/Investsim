@@ -148,4 +148,4 @@ apagar dados.
 
 ## Autor
 
-**Claudio Henrique De Oliveira Soares** · RGM · Engenharia de Software — Cruzeiro do Sul Virtual
+**Claudio Henrique De Oliveira Soares** - Engenharia de Software — Cruzeiro do Sul
