@@ -35,8 +35,10 @@
       </a>
       <nav>
         <ul class="menu">
-          <li><a href="{{ url_for('carteiras.painel') }}" {% if ep.startswith('carteiras.') %}aria-current="page"{% endif %}>
+          <li><a href="{{ url_for('carteiras.painel') }}" {% if ep.startswith('carteiras.') and ep != 'carteiras.movimentacoes' %}aria-current="page"{% endif %}>
             <svg class="icone" aria-hidden="true"><use href="#i-carteira"></use></svg> Minhas carteiras</a></li>
+          <li><a href="{{ url_for('carteiras.movimentacoes') }}" {% if ep == 'carteiras.movimentacoes' %}aria-current="page"{% endif %}>
+            <svg class="icone" aria-hidden="true"><use href="#i-lista"></use></svg> Minhas movimentações</a></li>
           <li class="menu__titulo">Mercado</li>
           {% for codigo, rotulo, icone in [('ACAO', 'Ações', 'i-acoes'), ('BDR', 'BDRs', 'i-bdr'), ('FII', 'FIIs', 'i-imoveis'), ('ETF', 'ETFs', 'i-indice'), ('CRIPTO', 'Cripto', 'i-cripto')] %}
           <li><a href="{{ url_for('mercado.index', classe=codigo) }}"
@@ -80,6 +82,7 @@
             </summary>
             <div class="menu-usuario__lista">
               <a href="{{ url_for('auth.alterar_senha') }}">Alterar minha senha</a>
+              <a href="{{ url_for('auth.excluir_conta') }}">Excluir minha conta</a>
               <form method="post" action="{{ url_for('auth.logout') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit">Sair</button>

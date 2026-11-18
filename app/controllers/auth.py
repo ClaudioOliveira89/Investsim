@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from app.controllers._helpers import aplicar_erro, url_segura
 from app.extensions import db
-from app.forms import AlterarSenhaForm, CadastroForm, LoginForm
+from app.forms import AlterarSenhaForm, CadastroForm, ExcluirContaForm, LoginForm
 from app.models import Usuario
 from app.services import usuario_service
 from app.services.excecoes import RegraNegocioError
@@ -59,6 +59,23 @@ def logout():
     logout_user()
     flash("Você saiu do sistema.", "info")
     return redirect(url_for("auth.login"))
+
+
+@bp.route("/minha-conta/excluir", methods=["GET", "POST"])
+@login_required
+def excluir_conta():
+    form = ExcluirContaForm()
+    if form.validate_on_submit():
+        try:
+            usuario_service.excluir_conta(current_user._get_current_object(), form.senha.data)
+        except RegraNegocioError as erro:
+            db.session.rollback()
+            aplicar_erro(form, erro)
+        else:
+            logout_user()
+            flash("Sua conta e todos os seus dados foram excluídos.", "info")
+            return redirect(url_for("auth.login"))
+    return render_template("auth/excluir_conta.html", form=form)
 
 
 @bp.route("/minha-senha", methods=["GET", "POST"])

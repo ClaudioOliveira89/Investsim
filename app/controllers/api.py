@@ -1,11 +1,13 @@
 """Endpoints JSON consumidos pelo JavaScript das telas."""
-from datetime import date
+from datetime import date, timedelta
 
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
 
 from app.extensions import db
-from app.models import Ativo
+from sqlalchemy import func, select
+
+from app.models import Ativo, Provento
 from app.services import mercado_service
 from app.services.excecoes import RegraNegocioError
 from app.simulador.regras import casas_decimais
@@ -57,4 +59,24 @@ def historico(ativo_id):
         return jsonify(erro=f"Período inválido. Use: {', '.join(PERIODOS)}."), 400
     pontos, avisos = mercado_service.historico_grafico(ativo, PERIODOS[periodo])
     return jsonify(ativo=ativo.ticker, periodo=periodo, pontos=pontos, avisos=avisos,
+                   estatisticas=_estatisticas(ativo, pontos, PERIODOS[periodo]),
                    gerado_em=date.today().isoformat())
+
+
+def _estatisticas(ativo: Ativo, pontos: list[dict], dias: int) -> dict | None:
+    """Indicadores do período escolhido (os cards da página acompanham o botão 1M/6M/1A/2A/5A)."""
+    if not pontos:
+        return None
+    valores = [p["valor"] for p in pontos]
+    proventos = float(db.session.scalar(
+        select(func.coalesce(func.sum(Provento.valor), 0)).where(
+            Provento.ativo_id == ativo.id, Provento.data >= hoje() - timedelta(days=dias)
+        )
+    ) or 0)
+    return {
+        "variacao": (valores[-1] / valores[0] - 1) * 100 if valores[0] else None,
+        "minimo": min(valores),
+        "maximo": max(valores),
+        "proventos": proventos,
+        "dividend_yield": proventos / valores[-1] * 100 if proventos and valores[-1] else None,
+    }

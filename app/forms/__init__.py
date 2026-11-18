@@ -101,6 +101,14 @@ class AlterarSenhaForm(Formulario):
     )
 
 
+class ExcluirContaForm(Formulario):
+    senha = PasswordField("Sua senha", validators=[DataRequired(OBRIGATORIO)])
+    confirmacao = StringField(
+        "Digite EXCLUIR para confirmar", filters=[_maiusculas],
+        validators=[DataRequired(OBRIGATORIO), Regexp(r"^EXCLUIR$", message="Digite exatamente EXCLUIR.")],
+    )
+
+
 class UsuarioForm(Formulario):
     nome = StringField(
         "Nome", filters=APARAR,

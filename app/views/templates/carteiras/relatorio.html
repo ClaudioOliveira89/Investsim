@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_macros.html" import kpi, variacao, ticker, selo_classe, acao_post, vazio %}
+{% from "_macros.html" import kpi, variacao, ticker, selo_classe, acao_post, vazio, paginacao %}
 {% block titulo %}{{ carteira.nome }}{% endblock %}
 {% block trilha %}<a href="{{ url_for('carteiras.painel') }}">Minhas carteiras</a><span>{{ carteira.nome }}</span>{% endblock %}
 {% block conteudo %}
@@ -151,10 +151,11 @@
 {% endif %}
 
 {# ---------------------------------------------------------------- operações #}
-{% if operacoes %}
+{% if operacoes.items %}
 <section class="cartao cartao--sem-padding" aria-labelledby="titulo-operacoes">
   <div class="cartao__cabecalho">
-    <h2 class="titulo-secao" id="titulo-operacoes">Operações <span class="selo">{{ operacoes | length }}</span></h2>
+    <h2 class="titulo-secao" id="titulo-operacoes">Operações <span class="selo">{{ total_operacoes }}</span></h2>
+    <a class="botao botao--secundario botao--pequeno" href="{{ url_for('carteiras.movimentacoes', carteira_id=carteira.id) }}">Buscar e filtrar</a>
   </div>
   <div class="tabela-rolagem">
     <table class="tabela tabela--responsiva">
@@ -163,7 +164,7 @@
         <th scope="col" class="dir">Preço</th><th scope="col" class="dir">Taxas</th><th scope="col" class="dir">Total</th><th scope="col" class="tabela__acoes">Ações</th>
       </tr></thead>
       <tbody>
-        {% for op in operacoes %}
+        {% for op in operacoes.items %}
         <tr>
           <td data-rotulo="Data" class="num">{{ op.data | data_br }}</td>
           <td data-rotulo="Tipo"><span class="selo selo--{{ op.tipo | lower }}">{{ 'Compra' if op.tipo == 'COMPRA' else 'Venda' }}</span></td>
@@ -185,6 +186,7 @@
       </tbody>
     </table>
   </div>
+  {{ paginacao(operacoes, 'carteiras.detalhe', {'carteira_id': carteira.id}) }}
 </section>
 {% endif %}
 

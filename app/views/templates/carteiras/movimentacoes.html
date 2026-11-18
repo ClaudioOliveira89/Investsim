@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% from "_macros.html" import acao_post, vazio, paginacao %}
+{% block titulo %}Minhas movimentações{% endblock %}
+{% block trilha %}<a href="{{ url_for('carteiras.painel') }}">Minhas carteiras</a><span>Movimentações</span>{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div>
+    <h1 class="titulo-pagina">Minhas movimentações</h1>
+    <p class="texto-suave">Todas as compras e vendas de todas as suas carteiras, com busca e filtros.</p>
+  </div>
+</div>
+
+<form class="cartao" method="get" aria-label="Filtrar movimentações">
+  <div class="grade grade--2">
+    <div class="campo">
+      <label class="campo__rotulo" for="f-q">Buscar</label>
+      <input class="campo__controle" id="f-q" name="q" type="search" maxlength="60" value="{{ filtros.get('q', '') }}"
+             placeholder="Ticker, nome do ativo ou observação">
+    </div>
+    <div class="campo">
+      <label class="campo__rotulo" for="f-carteira">Carteira</label>
+      <select class="campo__controle" id="f-carteira" name="carteira_id">
+        <option value="">Todas</option>
+        {% for c in carteiras %}<option value="{{ c.id }}" {% if filtros.get('carteira_id') == c.id %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label class="campo__rotulo" for="f-tipo">Tipo</label>
+      <select class="campo__controle" id="f-tipo" name="tipo">
+        <option value="">Compras e vendas</option>
+        <option value="COMPRA" {% if filtros.get('tipo') == 'COMPRA' %}selected{% endif %}>Somente compras</option>
+        <option value="VENDA" {% if filtros.get('tipo') == 'VENDA' %}selected{% endif %}>Somente vendas</option>
+      </select>
+    </div>
+    <div class="grade grade--2">
+      <div class="campo">
+        <label class="campo__rotulo" for="f-de">De</label>
+        <input class="campo__controle" id="f-de" name="de" type="date" value="{{ filtros.get('de', '') }}">
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="f-ate">Até</label>
+        <input class="campo__controle" id="f-ate" name="ate" type="date" value="{{ filtros.get('ate', '') }}">
+      </div>
+    </div>
+  </div>
+  <div class="acoes-form">
+    {% if filtros %}<a class="botao botao--secundario" href="{{ url_for('carteiras.movimentacoes') }}">Limpar filtros</a>{% endif %}
+    <button type="submit" class="botao botao--primario">Filtrar</button>
+  </div>
+</form>
+
+{% if pagina.items %}
+<section class="cartao cartao--sem-padding" aria-labelledby="titulo-mov">
+  <div class="cartao__cabecalho"><h2 class="titulo-secao" id="titulo-mov">Resultado <span class="selo">{{ pagina.total }}</span></h2></div>
+  <div class="tabela-rolagem">
+    <table class="tabela tabela--responsiva">
+      <thead><tr>
+        <th scope="col">Data</th><th scope="col">Carteira</th><th scope="col">Tipo</th><th scope="col">Ativo</th>
+        <th scope="col" class="dir">Qtd.</th><th scope="col" class="dir">Preço</th><th scope="col" class="dir">Total</th>
+        <th scope="col" class="tabela__acoes">Ações</th>
+      </tr></thead>
+      <tbody>
+        {% for op in pagina.items %}
+        <tr>
+          <td data-rotulo="Data" class="num">{{ op.data | data_br }}</td>
+          <td data-rotulo="Carteira"><a href="{{ url_for('carteiras.detalhe', carteira_id=op.carteira_id) }}">{{ op.carteira.nome }}</a></td>
+          <td data-rotulo="Tipo"><span class="selo selo--{{ op.tipo | lower }}">{{ 'Compra' if op.tipo == 'COMPRA' else 'Venda' }}</span></td>
+          <td data-rotulo="Ativo"><a class="ticker__codigo" href="{{ url_for('mercado.ativo', ticker=op.ativo.ticker) }}">{{ op.ativo.ticker }}</a>
+            {% if op.observacao %}<br><small class="texto-suave">{{ op.observacao }}</small>{% endif %}</td>
+          <td data-rotulo="Qtd." class="dir">{{ op.quantidade | quantidade }}</td>
+          <td data-rotulo="Preço" class="dir">{{ op.preco | preco }}</td>
+          <td data-rotulo="Total" class="dir">{{ op.valor_total | moeda }}</td>
+          <td class="tabela__acoes">
+            <a class="botao botao--texto botao--pequeno" href="{{ url_for('carteiras.editar_operacao', operacao_id=op.id) }}" aria-label="Editar operação de {{ op.data | data_br }}">
+              <svg class="icone" aria-hidden="true"><use href="#i-editar"></use></svg></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ paginacao(pagina, 'carteiras.movimentacoes', filtros) }}
+</section>
+{% else %}
+  {{ vazio('Nenhuma movimentação encontrada', 'Ajuste os filtros ou registre uma operação a partir do terminal do mercado.') }}
+{% endif %}
+{% endblock %}

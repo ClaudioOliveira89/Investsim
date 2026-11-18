@@ -99,6 +99,12 @@ def validar_cronologia(movimentos: list[Movimento]) -> None:
             continue
         if m.quantidade > posicao[m.ticker] + EPSILON:
             disponivel = posicao[m.ticker]
+            if disponivel <= EPSILON:
+                raise RegraSimuladorError(
+                    f"Você não tem posição em {m.ticker} nesta carteira em {m.data:%d/%m/%Y}: "
+                    "registre uma compra antes de vender.",
+                    campo="quantidade",
+                )
             raise RegraSimuladorError(
                 f"Venda de {m.quantidade:g} {m.ticker} em {m.data:%d/%m/%Y} excede a posição "
                 f"disponível nessa data ({disponivel:g}).",

@@ -147,6 +147,25 @@
     const status = document.querySelector("[data-grafico-status]");
     let grafico = null;
 
+    const ROTULOS = { "1m": "1 mês", "6m": "6 meses", "1a": "12 meses", "2a": "2 anos", "5a": "5 anos" };
+    function atualizarCards(est, periodo) {
+      if (!est) return;
+      const pct = (v) => (v == null ? "—" : `${v >= 0 ? "+" : ""}${numero(2).format(v)}%`);
+      const valores = { variacao: pct(est.variacao), minimo: moeda.format(est.minimo), maximo: moeda.format(est.maximo), proventos: moeda.format(est.proventos) };
+      Object.entries(valores).forEach(([chave, texto]) => {
+        const el = document.querySelector(`[data-kpi="${chave}"]`);
+        if (el) el.textContent = texto;
+      });
+      const variacaoEl = document.querySelector('[data-kpi="variacao"]');
+      if (variacaoEl) {
+        variacaoEl.classList.remove("positivo", "negativo");
+        if (est.variacao != null) variacaoEl.classList.add(est.variacao >= 0 ? "positivo" : "negativo");
+      }
+      document.querySelectorAll("[data-kpi-rotulo]").forEach((el) => { el.textContent = `${el.dataset.kpiRotulo} ${ROTULOS[periodo]}`; });
+      const nota = document.querySelector('[data-kpi-nota="proventos"]');
+      if (nota) nota.textContent = est.dividend_yield != null ? `Dividend yield: ${numero(2).format(est.dividend_yield)}%` : "por cota";
+    }
+
     async function carregar(periodo) {
       status.textContent = "Carregando…";
       try {
@@ -167,6 +186,7 @@
           },
           options: opcoesBase((v) => moeda.format(v)),
         });
+        atualizarCards(corpo.estatisticas, periodo);
         const variacao = (pontos[pontos.length - 1].valor / pontos[0].valor - 1) * 100;
         status.textContent = `Variação no período: ${variacao >= 0 ? "+" : ""}${numero(2).format(variacao)}%` +
           (corpo.avisos && corpo.avisos.length ? ` · ${corpo.avisos.join(" ")}` : "");

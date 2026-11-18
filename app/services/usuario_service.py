@@ -41,6 +41,20 @@ def salvar_usuario(usuario: Usuario, dados: dict, usuario_logado: Usuario) -> Us
     return usuario
 
 
+def excluir_conta(usuario: Usuario, senha: str) -> None:
+    """Exclusão da própria conta (LGPD): apaga o usuário e, em cascata, carteiras e operações."""
+    if not usuario.verificar_senha(senha):
+        raise RegraNegocioError("Senha incorreta.", campo="senha")
+    if usuario.is_admin:
+        admins = db.session.scalar(
+            select(func.count(Usuario.id)).where(Usuario.perfil == Usuario.PERFIL_ADMIN, Usuario.ativo.is_(True))
+        )
+        if admins <= 1:
+            raise RegraNegocioError("Você é o único administrador: promova outro usuário antes de excluir a conta.")
+    db.session.delete(usuario)
+    db.session.commit()
+
+
 def alternar_ativo(usuario: Usuario, usuario_logado: Usuario) -> None:
     if usuario.id == usuario_logado.id:
         raise RegraNegocioError("Você não pode desativar a sua própria conta.")

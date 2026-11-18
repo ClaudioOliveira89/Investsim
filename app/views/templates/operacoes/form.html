@@ -21,6 +21,12 @@
   </div>
 </div>
 
+  {% if form.ativo_id.errors and not operacao %}
+  <div class="alerta alerta--erro" role="alert">
+    <svg class="icone" aria-hidden="true"><use href="#i-erro"></use></svg>
+    <p>{{ form.ativo_id.errors | join(' ') }}</p>
+  </div>
+  {% endif %}
 {% if not ativo_selecionado and not operacao %}
   {{ vazio(
     'Escolha o ativo no terminal do mercado',
@@ -67,7 +73,19 @@
             {% for opcao in form.tipo %}<label>{{ opcao() }}<span>{{ opcao.label.text }}</span></label>{% endfor %}
           </div>
         </fieldset>
-        {{ campo(form.data, dica='Uma data futura cria uma projeção e exige preço manual.') }}
+        <div>
+          {{ campo(form.data, type='date', min='1900-01-01', max='2999-12-31',
+                   dica='Escolha no calendário, digite ou use os atalhos abaixo. Data futura cria uma projeção e exige preço manual.') }}
+          <div class="atalhos-data" role="group" aria-label="Atalhos de data" data-atalhos-data>
+            <button type="button" class="botao botao--secundario botao--pequeno" data-abrir-calendario>
+              <svg class="icone" aria-hidden="true"><use href="#i-calendario"></use></svg> Calendário</button>
+            <button type="button" class="botao botao--texto botao--pequeno" data-dias-atras="0">Hoje</button>
+            <button type="button" class="botao botao--texto botao--pequeno" data-meses-atras="1">1 mês atrás</button>
+            <button type="button" class="botao botao--texto botao--pequeno" data-meses-atras="6">6 meses</button>
+            <button type="button" class="botao botao--texto botao--pequeno" data-meses-atras="12">1 ano</button>
+            <button type="button" class="botao botao--texto botao--pequeno" data-meses-atras="60">5 anos</button>
+          </div>
+        </div>
       </div>
 
       <fieldset class="campo" style="margin-top: 14px">
@@ -78,7 +96,7 @@
       </fieldset>
       <div class="grade grade--2" style="margin-top: 10px">
         {{ campo(form.valor, classe='', obrigatorio=False, inputmode='decimal', step='0.01', min='0', type='number', placeholder='Ex.: 1000,00',
-                 dica='A quantidade é calculada pelo preço do dia (arredonda para baixo).', **{'data-campo-modo': 'VALOR'}) }}
+                 dica='Só se negociam unidades inteiras (cripto: frações): a quantidade é arredondada para baixo e a sobra não é usada.', **{'data-campo-modo': 'VALOR'}) }}
         {{ campo(form.quantidade, obrigatorio=False, inputmode='decimal', step='any', min='0', type='number',
                  dica='Ações, BDRs, FIIs e ETFs: unidades inteiras. Cripto: até 8 casas.', **{'data-campo-modo': 'QUANTIDADE'}) }}
       </div>
@@ -102,9 +120,14 @@
       </div>
       <dl class="lista-dados">
         <dt>Quantidade</dt><dd data-resumo-quantidade>—</dd>
+        <dt data-linha-valor hidden>Valor informado</dt><dd data-resumo-informado hidden>—</dd>
+        <dt data-linha-valor hidden>Sobra não usada</dt><dd data-resumo-sobra hidden>—</dd>
         <dt>Taxas</dt><dd data-resumo-taxas>—</dd>
         <dt>Total</dt><dd class="total-operacao" data-resumo-total>—</dd>
       </dl>
+      <p class="texto-suave" data-resumo-nota hidden>
+        O total pode ficar abaixo do valor informado: o simulador compra apenas quantidades inteiras do ativo e a diferença (sobra) não entra na operação.
+      </p>
       <div class="acoes-form acoes-form--coluna">
         <button type="submit" class="botao botao--primario botao--bloco">{{ 'Salvar alterações' if operacao else 'Registrar operação' }}</button>
         <a class="botao botao--secundario botao--bloco" href="{{ url_for('carteiras.detalhe', carteira_id=carteira.id) }}">Cancelar</a>

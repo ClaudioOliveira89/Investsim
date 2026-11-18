@@ -3,7 +3,7 @@ import csv
 import io
 from flask import Blueprint, Response, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from sqlalchemy import select
+from sqlalchemy import or_, select
 
 from app.controllers._helpers import aplicar_erro
 from app.extensions import db
@@ -13,10 +13,12 @@ from app.services import carteira_service
 from app.services.excecoes import RegraNegocioError
 from app.simulador.regras import CLASSES, COMPRA, VENDA
 from app.utils import filtros
-from app.utils.tempo import hoje
+from app.utils.tempo import data_da_url, hoje
 
 bp = Blueprint("carteiras", __name__)
 MAX_PONTOS_GRAFICO = 700
+ITENS_POR_PAGINA_OPERACOES = 10
+ITENS_POR_PAGINA_MOVIMENTACOES = 15
 
 
 @bp.before_request
@@ -97,7 +99,12 @@ def detalhe(carteira_id):
         r=resultado,
         i=resultado.indicadores,
         grafico=_dados_grafico(resultado) if not resultado.vazio else None,
-        operacoes=sorted(carteira.operacoes, key=lambda o: (o.data, o.id), reverse=True),
+        operacoes=db.paginate(
+            select(Operacao).where(Operacao.carteira_id == carteira.id)
+            .order_by(Operacao.data.desc(), Operacao.id.desc()),
+            per_page=ITENS_POR_PAGINA_OPERACOES, error_out=False,
+        ),
+        total_operacoes=len(carteira.operacoes),
         avisos=avisos,
         modo_impressao=False,
     )
@@ -205,6 +212,14 @@ def _salvar_operacao(carteira: Carteira, form: OperacaoForm, operacao: Operacao 
         f"{filtros.preco(salva.preco)} em {salva.data:%d/%m/%Y} (total {filtros.moeda(salva.valor_total)}).",
         "sucesso",
     )
+    if form.modo.data == "VALOR" and form.valor.data:
+        sobra = float(form.valor.data) - float(salva.quantidade) * float(salva.preco)
+        if sobra > 0.005:
+            flash(
+                f"Dos {filtros.moeda(form.valor.data)} informados, {filtros.moeda(sobra)} não foram "
+                "usados: só é possível negociar quantidades inteiras (cripto: frações limitadas).",
+                "info",
+            )
     return redirect(url_for("carteiras.detalhe", carteira_id=carteira.id))
 
 
@@ -253,3 +268,46 @@ def excluir_operacao(operacao_id):
     else:
         flash("Operação excluída. O relatório foi recalculado.", "sucesso")
     return redirect(url_for("carteiras.detalhe", carteira_id=carteira_id))
+
+
+# --------------------------------------------------------------------------- movimentações
+@bp.route("/movimentacoes")
+def movimentacoes():
+    """Todas as operações do usuário (de todas as carteiras), com busca, filtros e paginação."""
+    busca = (request.args.get("q") or "").strip()[:60]
+    tipo = request.args.get("tipo") if request.args.get("tipo") in (COMPRA, VENDA) else ""
+    carteira_id = request.args.get("carteira_id", type=int)
+    de = data_da_url(request.args.get("de"))
+    ate = data_da_url(request.args.get("ate"))
+
+    consulta = (
+        select(Operacao).join(Carteira).join(Ativo, Operacao.ativo_id == Ativo.id)
+        .where(Carteira.usuario_id == current_user.id)
+    )
+    if busca:
+        termo = f"%{busca}%"
+        consulta = consulta.where(or_(
+            Ativo.ticker.ilike(termo), Ativo.nome.ilike(termo), Operacao.observacao.ilike(termo),
+        ))
+    if tipo:
+        consulta = consulta.where(Operacao.tipo == tipo)
+    if carteira_id:
+        consulta = consulta.where(Operacao.carteira_id == carteira_id)
+    if de:
+        consulta = consulta.where(Operacao.data >= de)
+    if ate:
+        consulta = consulta.where(Operacao.data <= ate)
+    pagina = db.paginate(
+        consulta.order_by(Operacao.data.desc(), Operacao.id.desc()),
+        per_page=ITENS_POR_PAGINA_MOVIMENTACOES, error_out=False,
+    )
+    filtros_ativos = {
+        k: v for k, v in {
+            "q": busca, "tipo": tipo, "carteira_id": carteira_id,
+            "de": de.isoformat() if de else "", "ate": ate.isoformat() if ate else "",
+        }.items() if v
+    }
+    return render_template(
+        "carteiras/movimentacoes.html", pagina=pagina, filtros=filtros_ativos,
+        carteiras=current_user.carteiras,
+    )

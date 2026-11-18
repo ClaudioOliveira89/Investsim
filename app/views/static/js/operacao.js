@@ -11,6 +11,11 @@
   const ui = {
     rotulo: $("[data-cotacao-rotulo]"), preco: $("[data-cotacao-preco]"), info: $("[data-cotacao-info]"),
     quantidade: $("[data-resumo-quantidade]"), taxas: $("[data-resumo-taxas]"), total: $("[data-resumo-total]"),
+    informado: $("[data-resumo-informado]"), sobra: $("[data-resumo-sobra]"), nota: $("[data-resumo-nota]"),
+  };
+  const linhasValor = form.querySelectorAll("[data-linha-valor]");
+  const mostrarSobra = (visivel) => {
+    [ui.informado, ui.sobra, ui.nota, ...linhasValor].forEach((el) => { el.hidden = !visivel; });
   };
   let cotacao = null; // { preco, casas, data, data_pedida, ativo }
   let requisicao = null;
@@ -46,6 +51,7 @@
     const preco = precoEfetivo();
     const taxas = num("taxas") || 0;
     ui.taxas.textContent = taxas ? moeda.format(taxas) : "—";
+    mostrarSobra(false);
     if (!preco) {
       ui.quantidade.textContent = "—";
       ui.total.textContent = "—";
@@ -66,6 +72,12 @@
     }
     const venda = (form.querySelector('[name="tipo"]:checked') || {}).value === "VENDA";
     const bruto = quantidade * preco;
+    if (modo() === "VALOR") {
+      const informado = num("valor");
+      ui.informado.textContent = moeda.format(informado);
+      ui.sobra.textContent = moeda.format(Math.max(0, informado - bruto));
+      mostrarSobra(true);
+    }
     ui.quantidade.textContent = quantidade.toLocaleString("pt-BR", { maximumFractionDigits: 8 });
     ui.total.textContent = moeda.format(venda ? bruto - taxas : bruto + taxas) + (venda ? " a receber" : "");
   }
@@ -101,8 +113,10 @@
       cotacao = corpo;
       ui.rotulo.textContent = `${corpo.ativo} · fechamento`;
       ui.preco.textContent = moeda.format(corpo.preco);
+      const venda = (form.querySelector('[name="tipo"]:checked') || {}).value === "VENDA";
+      const uso = venda ? "Preço de venda = fechamento de" : "Fechamento de";
       ui.info.textContent = corpo.data === corpo.data_pedida
-        ? `Fechamento de ${dataBR(corpo.data)}`
+        ? `${uso} ${dataBR(corpo.data)}`
         : `Sem pregão em ${dataBR(corpo.data_pedida)}: usando ${dataBR(corpo.data)}`;
     } catch (erro) {
       ui.preco.textContent = "—";
@@ -114,7 +128,33 @@
   }
 
   form.querySelectorAll('[name="modo"]').forEach((r) => r.addEventListener("change", alternarModo));
-  form.querySelectorAll('[name="tipo"]').forEach((r) => r.addEventListener("change", atualizar));
+  form.querySelectorAll('[name="tipo"]').forEach((r) => r.addEventListener("change", buscarCotacao));
+
+  /* Atalhos de data: úteis quando o seletor nativo do navegador é ruim (ex.: Firefox) e para
+   * registrar compras retroativas sem digitar a data inteira. */
+  const dataInput = campo("data");
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  function definirData(d) {
+    dataInput.value = iso(d);
+    dataInput.dispatchEvent(new Event("input", { bubbles: true }));
+    dataInput.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  form.querySelectorAll("[data-meses-atras], [data-dias-atras]").forEach((botao) => {
+    botao.addEventListener("click", () => {
+      const d = new Date(`${form.dataset.hoje}T12:00:00`);
+      if (botao.dataset.mesesAtras) d.setMonth(d.getMonth() - Number(botao.dataset.mesesAtras));
+      definirData(d);
+    });
+  });
+  const abrir = form.querySelector("[data-abrir-calendario]");
+  if (abrir) {
+    abrir.addEventListener("click", () => {
+      if (typeof dataInput.showPicker === "function") {
+        try { dataInput.showPicker(); return; } catch (e) { /* cai no foco simples */ }
+      }
+      dataInput.focus();
+    });
+  }
   ["valor", "quantidade", "preco", "taxas"].forEach((nome) => campo(nome).addEventListener("input", atualizar));
   campo("ativo_id").addEventListener("change", buscarCotacao);
   campo("data").addEventListener("change", buscarCotacao);

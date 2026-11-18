@@ -106,7 +106,7 @@ def test_data_futura_e_recusada(logado_investidor, carteira, ativos):
     html = logado_investidor.post(
         f"/carteiras/{carteira.id}/operacoes/nova", data=_form(ativos["PETR4"], hoje() + timedelta(days=2))
     ).get_data(as_text=True)
-    assert "não pode estar no futuro" in html
+    assert "preço projetado" in html  # data futura = projeção: exige preço manual
 
 
 def test_venda_maior_que_a_posicao_e_bloqueada(logado_investidor, db, carteira, ativos, dias_atras):

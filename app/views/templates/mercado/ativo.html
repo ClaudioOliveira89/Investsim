@@ -48,11 +48,18 @@
 {% endif %}
 
 <section class="kpis" aria-label="Estatísticas">
-  {{ kpi('Variação 12 meses', (linha.var_12m | pct) if linha.ultimo else '—', None, '', linha.var_12m | tendencia) }}
-  {{ kpi('Mínima 12 meses', (minimo | preco) if minimo else '—') }}
-  {{ kpi('Máxima 12 meses', (maximo | preco) if maximo else '—') }}
+  {% macro kpi_vivo(chave, rotulo, valor, nota=None, classe_valor='') %}
+  <article class="kpi">
+    <p class="kpi__rotulo"><span data-kpi-rotulo="{{ rotulo }}">{{ rotulo }} 12 meses</span></p>
+    <p class="kpi__valor {{ classe_valor }}" data-kpi="{{ chave }}">{{ valor }}</p>
+    {% if nota is not none %}<p class="kpi__nota" data-kpi-nota="{{ chave }}">{{ nota }}</p>{% endif %}
+  </article>
+  {% endmacro %}
+  {{ kpi_vivo('variacao', 'Variação', (linha.var_12m | pct) if linha.ultimo else '—', None, linha.var_12m | tendencia) }}
+  {{ kpi_vivo('minimo', 'Mínima', (minimo | preco) if minimo else '—') }}
+  {{ kpi_vivo('maximo', 'Máxima', (maximo | preco) if maximo else '—') }}
   {% if ativo.classe != 'CRIPTO' %}
-  {{ kpi('Proventos 12 meses', proventos_12m | moeda, ('Dividend yield: ' ~ (dividend_yield | pct(2, False))) if dividend_yield else 'por cota') }}
+  {{ kpi_vivo('proventos', 'Proventos', proventos_12m | moeda, ('Dividend yield: ' ~ (dividend_yield | pct(2, False))) if dividend_yield else 'por cota') }}
   {% endif %}
   {{ kpi('Último fechamento', (linha.data | data_br) if linha.ultimo else '—') }}
 </section>
@@ -75,5 +82,5 @@
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/graficos.js', v='20261115-bdr') }}" defer></script>
+<script src="{{ url_for('static', filename='js/graficos.js', v='20261117-periodo') }}" defer></script>
 {% endblock %}

@@ -90,6 +90,9 @@ def registrar_operacao(
         outras = [op.movimento() for op in carteira.operacoes if op.id != operacao.id]
         validar_cronologia([*outras, nova])
     except RegraSimuladorError as erro:
+        # No modo "valor em R$" o campo quantidade fica oculto: o erro precisa aparecer em "valor".
+        if dados.get("modo") == MODO_VALOR and erro.campo == "quantidade":
+            erro.campo = "valor"
         raise _regra(erro) from erro
 
     operacao.carteira = carteira
